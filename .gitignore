@@ -1,0 +1,16 @@
+# PlatformIO
+.pio/
+.vscode/
+.pioenvs/
+libdeps/
+build/
+.pio/libdeps/
+.pio/build/
+.cache
+
+# MacOS
+.DS_Store
+
+# Arduino backups
+*.bak
+*.tmp

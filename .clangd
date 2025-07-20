@@ -1,0 +1,16 @@
+CompileFlags:
+  Add:
+    - -std=c++17
+    - -Wall
+    - -Wextra
+    - -pedantic
+    - -O2
+    - -g
+    - -isystem
+    - /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1
+    - -isystem
+    - /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include
+    - -D__APPLE__
+    - -D__clang__
+    - -mmacosx-version-min=10.15
+    - -I/Users/oguzgundogdu/Projects/Ardos/.pio/libdeps/uno_r4_wifi
