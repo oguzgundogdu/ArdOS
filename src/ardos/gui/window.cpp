@@ -67,9 +67,9 @@ void Window::onDrag(int16_t tx, int16_t ty, Adafruit_ILI9341& tft)
     int16_t new_x = tx - drag_offset_x;
     int16_t new_y = ty - drag_offset_y;
 
-    if (new_y < MENU_HEIGHT)
+    if (new_y <= MENU_HEIGHT)
     {
-        new_y = MENU_HEIGHT; // Prevent dragging above the menu bar
+        new_y = MENU_HEIGHT + 1; // Prevent dragging above the menu bar
     }
 
     Serial.print("Dragging window to: ");
