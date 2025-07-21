@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "ardos/kernel/config.h"
+#include "ardos/kernel/event_listener.h"
 #include <ardos/gui/screen_manager.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
@@ -53,6 +54,8 @@ void ScreenManager::OnEvent(const Event& e)
         break;
     case EventType::Kill:
         onKill(e);
+    case EventType::TimeChanged:
+        menubar->draw(*tft);
         break;
     }
 }

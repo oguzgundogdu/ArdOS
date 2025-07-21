@@ -6,7 +6,8 @@ enum class EventType
     Custom,
     TouchStart,
     TouchMove,
-    TouchEnd
+    TouchEnd,
+    TimeChanged
 };
 
 struct Event

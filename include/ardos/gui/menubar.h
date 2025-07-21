@@ -15,4 +15,5 @@ class MenuBar : public Panel
 
   private:
     std::function<void()> callback;
+    String getFormattedTime();
 };
