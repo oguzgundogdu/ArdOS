@@ -4,5 +4,5 @@
 
 class EventListener {
 public:
-  virtual void onEvent(const Event &e) = 0;
+  virtual void OnEvent(const Event &e) = 0;
 };

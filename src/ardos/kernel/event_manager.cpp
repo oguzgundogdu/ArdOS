@@ -6,7 +6,7 @@ std::vector<EventListener *> EventManager::listeners;
 
 void EventManager::dispatch(const Event &event) {
   for (auto *listener : listeners) {
-    listener->onEvent(event);
+    listener->OnEvent(event);
   }
 }
 

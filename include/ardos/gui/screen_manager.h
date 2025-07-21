@@ -10,11 +10,9 @@
 class ScreenManager : public EventListener {
 public:
   ScreenManager();
-  void draw();
-  void onEvent(const Event &e) override;
-  void addWindow(Window *window);
-  Window *getWindowById(uintptr_t id);
-  void start();
+  void Render();
+  void OnEvent(const Event &e) override;
+  void Start();
 
 private:
   Adafruit_ILI9341 *tft = new Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
@@ -24,4 +22,10 @@ private:
   MenuBar *menubar = new MenuBar();
   void arrangeWindowStack();
   void createWindow(const char *title, int16_t w, int16_t h);
+  void addWindow(Window *window);
+  Window *getWindowById(uintptr_t id);
+  void onTouchStart(const Event &e);
+  void onTouchMove(const Event &e);
+  void onTouchEnd(const Event &e);
+  void onKill(const Event &e);
 };

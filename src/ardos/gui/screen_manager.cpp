@@ -4,9 +4,9 @@
 #include <ardos/kernel/state.h>
 #include <cstdint>
 
-ScreenManager::ScreenManager() {}
+ScreenManager::ScreenManager() = default;
 
-void ScreenManager::start() {
+void ScreenManager::Start() {
   tft->begin();
   tft->setRotation(1);
   tft->fillScreen(ILI9341_BLACK);
@@ -18,7 +18,7 @@ void ScreenManager::start() {
   });
 }
 
-void ScreenManager::draw() {
+void ScreenManager::Render() {
   if (!needs_redraw)
     return;
   needs_redraw = false;
@@ -27,6 +27,25 @@ void ScreenManager::draw() {
 
   for (auto *p : windows) {
     p->draw(*tft);
+  }
+}
+
+void ScreenManager::OnEvent(const Event &e) {
+  switch (e.type) {
+  case EventType::TouchStart:
+    onTouchStart(e);
+    break;
+
+  case EventType::TouchMove:
+    onTouchMove(e);
+    break;
+
+  case EventType::TouchEnd:
+    onTouchEnd(e);
+    break;
+  case EventType::Kill:
+    onKill(e);
+    break;
   }
 }
 
@@ -40,92 +59,77 @@ void ScreenManager::addWindow(Window *window) {
   needs_redraw = true;
 }
 
-void ScreenManager::onEvent(const Event &e) {
-  switch (e.type) {
-  case EventType::Touch:
-    Serial.print("Touch event at: ");
-    Serial.print(e.x);
-    Serial.print(", ");
-    Serial.println(e.y);
-
-    if (menubar->contains(e.x, e.y)) {
-      Serial.println("Menu bar touched");
-      menubar->onTouch(e.x, e.y);
-      needs_redraw = true;
-      return; // Menu bar handled the touch
+void ScreenManager::onTouchStart(const Event &e) {
+  Serial.print("Touch start at: ");
+  Serial.print(e.x);
+  Serial.print(", ");
+  Serial.println(e.y);
+  if (menubar->contains(e.x, e.y)) {
+    menubar->onTouch(e.x, e.y);
+    needs_redraw = true;
+    return;
+  }
+  for (Window *w : windows) {
+    if (w && w->contains(e.x, e.y)) {
+      windows.erase(std::remove(windows.begin(), windows.end(), w),
+                    windows.end());
+      windows.push_back(w);
+      focused = w;
+      w->setFocused(true);
+      w->onTouch(e.x, e.y);
+      break;
     }
-    for (Window *w : windows) {
+  }
+}
 
-      if (w == nullptr) {
-        Serial.println("Touch: Null window found, skipping");
-        continue;
-      }
+void ScreenManager::onTouchMove(const Event &e) {
+  if (focused) {
+    focused->onDrag(e.x, e.y, *tft);
+  }
+}
 
-      Serial.print("Checking window: ");
-      Serial.println((uintptr_t)w);
+void ScreenManager::onTouchEnd(const Event &e) {}
 
-      if (w->contains(e.x, e.y)) {
-        Serial.print("Window found: ");
-        Serial.println((uintptr_t)w);
+void ScreenManager::onKill(const Event &e) {
+  for (auto *p : windows) {
 
-        // Bring to front (end of list)
-        windows.erase(std::remove(windows.begin(), windows.end(), w),
-                      windows.end());
-        windows.push_back(w);
-        focused = w;
-        w->setFocused(true);
-
-        w->onTouch(e.x, e.y);
-        w->onDrag(e.x, e.y, *tft);
-        needs_redraw = true;
-      } else if (needs_redraw) {
-        w->setFocused(false);
-      }
+    if (p == nullptr) {
+      Serial.println("Kill: Null window found, skipping");
+      continue;
     }
 
-    break;
-  case EventType::Kill:
-    for (auto *p : windows) {
+    uintptr_t windowPtr = (uintptr_t)p;
 
-      if (p == nullptr) {
-        Serial.println("Kill: Null window found, skipping");
-        continue;
-      }
+    if (e.id != 0 && windowPtr == e.id) {
+      int16_t px = p->getX();
+      int16_t py = p->getY();
+      int16_t pw = p->getWidth();
+      int16_t ph = p->getHeight();
 
-      uintptr_t windowPtr = (uintptr_t)p;
+      // Remove the window from the list
+      auto it = std::remove(windows.begin(), windows.end(), p);
+      if (it != windows.end()) {
+        windows.erase(it);
+        Serial.println("Window removed");
 
-      if (e.id != 0 && windowPtr == e.id) {
-        int16_t px = p->getX();
-        int16_t py = p->getY();
-        int16_t pw = p->getWidth();
-        int16_t ph = p->getHeight();
+        // Clear the area
+        tft->fillRect(px, py, pw, ph, ILI9341_BLACK);
 
-        // Remove the window from the list
-        auto it = std::remove(windows.begin(), windows.end(), p);
-        if (it != windows.end()) {
-          windows.erase(it);
-          Serial.println("Window removed");
-
-          // Clear the area
-          tft->fillRect(px, py, pw, ph, ILI9341_BLACK);
-
-          std::vector<Window *> toRedraw;
-          for (auto it = windows.begin(); it != windows.end();) {
-            if ((*it)->intersects(px, py, pw, ph)) {
-              toRedraw.push_back(*it);
-              it = windows.erase(it);
-            } else {
-              ++it;
-            }
+        std::vector<Window *> toRedraw;
+        for (auto it = windows.begin(); it != windows.end();) {
+          if ((*it)->intersects(px, py, pw, ph)) {
+            toRedraw.push_back(*it);
+            it = windows.erase(it);
+          } else {
+            ++it;
           }
-          for (auto *p : toRedraw) {
-            windows.push_back(p);
-            p->draw(*tft);
-          }
+        }
+        for (auto *p : toRedraw) {
+          windows.push_back(p);
+          p->draw(*tft);
         }
       }
     }
-    break;
   }
 }
 

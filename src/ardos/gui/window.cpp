@@ -34,6 +34,7 @@ void Window::onTouch(int16_t tx, int16_t ty) {
 
   if (tx >= closeBoxX && tx <= closeBoxX + 10 && ty >= closeBoxY &&
       ty <= closeBoxY + 10) {
+    is_dragging = false;
     ardos::kernel::EventManager::dispatch(
         Event{EventType::Kill, 0, 0, (uintptr_t)this});
     Serial.println("Window is closing");

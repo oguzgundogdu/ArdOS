@@ -12,14 +12,14 @@ ScreenManager *screenManager = new ScreenManager();
 void setup() {
   Serial.begin(9600);
   Serial.println("ArdOS is starting...");
-  screenManager->start();
+  screenManager->Start();
   input::begin();
   ardos::kernel::EventManager::registerListener(screenManager);
 }
 
 void loop() {
   input::poll();
-  screenManager->draw();
+  screenManager->Render();
   delay(10); // Polling delay
   // This can be adjusted based on your needs
   // or replaced with an interrupt-based approach if needed

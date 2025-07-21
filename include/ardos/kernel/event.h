@@ -1,5 +1,14 @@
 #include <cstdint>
-enum class EventType { Touch, Kill, Drag, Focus, Custom };
+enum class EventType {
+  Touch,
+  Kill,
+  Drag,
+  Focus,
+  Custom,
+  TouchStart,
+  TouchMove,
+  TouchEnd
+};
 
 struct Event {
   EventType type; // Exp: Touch

@@ -14,24 +14,45 @@ void begin() {
   ts.setRotation(3); // landscape mode
 }
 
+namespace {
+bool wasTouched = false;
+int16_t last_x = -1;
+int16_t last_y = -1;
+} // namespace
+
 void poll() {
-  if (ts.touched()) {
+  bool touching = ts.touched();
+
+  if (touching) {
     TS_Point p = ts.getPoint();
-
-    Event e;
-    e.type = EventType::Touch;
-    e.x = p.x;
-    e.y = p.y;
-
     int16_t screenX = map(p.x, 200, 3800, 0, 320);
     int16_t screenY = map(p.y, 200, 3800, 0, 240);
+
+    Event e;
     e.x = screenX;
     e.y = screenY;
 
-    Serial.print("Touch detected at: ");
-    Serial.print(e.x);
-    Serial.print(", ");
-    Serial.println(e.y);
+    if (!wasTouched) {
+      e.type = EventType::TouchStart;
+      wasTouched = true;
+    } else {
+      if (abs(screenX - last_x) > 2 || abs(screenY - last_y) > 2) {
+        e.type = EventType::TouchMove;
+      } else {
+        return;
+      }
+    }
+
+    last_x = screenX;
+    last_y = screenY;
+    ardos::kernel::EventManager::dispatch(e);
+
+  } else if (wasTouched) {
+    Event e;
+    e.x = last_x;
+    e.y = last_y;
+    e.type = EventType::TouchEnd;
+    wasTouched = false;
     ardos::kernel::EventManager::dispatch(e);
   }
 }
