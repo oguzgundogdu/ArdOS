@@ -13,28 +13,8 @@ void ScreenManager::start() {
 
   menubar->draw(*tft);
   menubar->setCallback([this]() {
-    uintptr_t activePanel = ardos::kernel::state.active_panel_id;
-    int16_t lastX = 0;
-    int16_t lastY = 0;
-    if (activePanel != 0) {
-      Panel *activePanelPtr = getPanelById(activePanel);
-      if (activePanelPtr) {
-        lastX = activePanelPtr->getX();
-        lastY = activePanelPtr->getY();
-      }
-    }
-
-    auto targetX = lastX + 20;
-    auto targetY = lastY + 20;
-    if (targetX + 120 > 320) {
-      targetX = 0;
-    }
-    if (targetY + 60 > 240) {
-      targetY = 0;
-    }
-
-    Window *w = new Window(targetX, targetY, 120, 60, "Test Window");
-    this->addPanel(w);
+    Serial.println("Menu bar clicked, creating new window");
+    createWindow("New Window", 120, 60);
   });
 }
 
@@ -45,18 +25,18 @@ void ScreenManager::draw() {
 
   arrangeWindowStack();
 
-  for (auto *p : panels) {
+  for (auto *p : windows) {
     p->draw(*tft);
   }
 }
 
-void ScreenManager::addPanel(Panel *panel) {
-  panels.push_back(panel);
-  Serial.print("Panel added: ");
-  Serial.println((uintptr_t)panel);
-  ardos::kernel::state.active_panel_id = (uintptr_t)panel;
-  focused = panel;
-  panel->setFocused(true);
+void ScreenManager::addWindow(Window *window) {
+  windows.push_back(window);
+  Serial.print("Window added: ");
+  Serial.println((uintptr_t)window);
+  ardos::kernel::state.active_panel_id = (uintptr_t)window;
+  focused = window;
+  window->setFocused(true);
   needs_redraw = true;
 }
 
@@ -74,71 +54,72 @@ void ScreenManager::onEvent(const Event &e) {
       needs_redraw = true;
       return; // Menu bar handled the touch
     }
-    for (auto *p : panels) {
+    for (Window *w : windows) {
 
-      if (p == nullptr) {
-        Serial.println("Touch: Null panel found, skipping");
+      if (w == nullptr) {
+        Serial.println("Touch: Null window found, skipping");
         continue;
       }
 
-      Serial.print("Checking panel: ");
-      Serial.println((uintptr_t)p);
+      Serial.print("Checking window: ");
+      Serial.println((uintptr_t)w);
 
-      if (p->contains(e.x, e.y)) {
-        Serial.print("Panel found: ");
-        Serial.println((uintptr_t)p);
+      if (w->contains(e.x, e.y)) {
+        Serial.print("Window found: ");
+        Serial.println((uintptr_t)w);
 
         // Bring to front (end of list)
-        panels.erase(std::remove(panels.begin(), panels.end(), p),
-                     panels.end());
-        panels.push_back(p);
-        focused = p;
-        p->setFocused(true);
+        windows.erase(std::remove(windows.begin(), windows.end(), w),
+                      windows.end());
+        windows.push_back(w);
+        focused = w;
+        w->setFocused(true);
 
-        p->onTouch(e.x, e.y);
+        w->onTouch(e.x, e.y);
+        w->onDrag(e.x, e.y, *tft);
         needs_redraw = true;
       } else if (needs_redraw) {
-        p->setFocused(false);
+        w->setFocused(false);
       }
     }
 
     break;
   case EventType::Kill:
-    for (auto *p : panels) {
+    for (auto *p : windows) {
 
       if (p == nullptr) {
-        Serial.println("Kill: Null panel found, skipping");
+        Serial.println("Kill: Null window found, skipping");
         continue;
       }
 
-      uintptr_t panelPtr = (uintptr_t)p;
+      uintptr_t windowPtr = (uintptr_t)p;
 
-      if (e.id != 0 && panelPtr == e.id) {
+      if (e.id != 0 && windowPtr == e.id) {
         int16_t px = p->getX();
         int16_t py = p->getY();
         int16_t pw = p->getWidth();
         int16_t ph = p->getHeight();
 
-        // Remove the panel from the list
-        auto it = std::remove(panels.begin(), panels.end(), p);
-        if (it != panels.end()) {
-          panels.erase(it);
-          Serial.println("Panel removed");
+        // Remove the window from the list
+        auto it = std::remove(windows.begin(), windows.end(), p);
+        if (it != windows.end()) {
+          windows.erase(it);
+          Serial.println("Window removed");
 
           // Clear the area
           tft->fillRect(px, py, pw, ph, ILI9341_BLACK);
 
-          std::vector<Panel *> toRedraw;
-          for (auto it = panels.begin(); it != panels.end();) {
+          std::vector<Window *> toRedraw;
+          for (auto it = windows.begin(); it != windows.end();) {
             if ((*it)->intersects(px, py, pw, ph)) {
               toRedraw.push_back(*it);
-              it = panels.erase(it);
+              it = windows.erase(it);
             } else {
               ++it;
             }
           }
           for (auto *p : toRedraw) {
-            panels.push_back(p);
+            windows.push_back(p);
             p->draw(*tft);
           }
         }
@@ -148,8 +129,8 @@ void ScreenManager::onEvent(const Event &e) {
   }
 }
 
-Panel *ScreenManager::getPanelById(uintptr_t id) {
-  for (auto *p : panels) {
+Window *ScreenManager::getWindowById(uintptr_t id) {
+  for (auto *p : windows) {
     if ((uintptr_t)p == id) {
       return p;
     }
@@ -158,13 +139,41 @@ Panel *ScreenManager::getPanelById(uintptr_t id) {
 }
 
 void ScreenManager::arrangeWindowStack() {
-  Panel *lastPanel = panels.empty() ? nullptr : panels.back();
-  if (lastPanel) {
-    focused = lastPanel;
-    lastPanel->setFocused(true);
-    ardos::kernel::state.active_panel_id = (uintptr_t)lastPanel;
-  } else {
-    focused = nullptr;
-    ardos::kernel::state.active_panel_id = 0;
+  for (int i = 0; i < windows.size(); i++) {
+    Window *p = windows[i];
+    if (p != nullptr) {
+      if (i == windows.size() - 1) {
+        windows[i]->setFocused(true);
+        focused = p;
+        ardos::kernel::state.active_panel_id = (uintptr_t)p;
+      } else {
+        windows[i]->setFocused(false);
+      }
+    }
   }
+}
+
+void ScreenManager::createWindow(const char *title, int16_t w, int16_t h) {
+  uintptr_t activePanel = ardos::kernel::state.active_panel_id;
+  int16_t lastX = 0;
+  int16_t lastY = 0;
+  if (activePanel != 0) {
+    Window *activePanelPtr = getWindowById(activePanel);
+    if (activePanelPtr) {
+      lastX = activePanelPtr->getX();
+      lastY = activePanelPtr->getY();
+    }
+  }
+
+  auto targetX = lastX + 20;
+  auto targetY = lastY + 20;
+  if (targetX + 120 > 320) {
+    targetX = 0;
+  }
+  if (targetY + 60 > 240) {
+    targetY = 0;
+  }
+
+  Window *window = new Window(targetX, targetY, w, h, title);
+  this->addWindow(window);
 }

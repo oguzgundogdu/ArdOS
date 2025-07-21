@@ -2,7 +2,7 @@
 
 #include <Adafruit_ILI9341.h>
 #include <ardos/gui/menubar.h>
-#include <ardos/gui/panel.h>
+#include <ardos/gui/window.h>
 #include <ardos/kernel/config.h>
 #include <ardos/kernel/event_listener.h>
 #include <vector>
@@ -12,15 +12,16 @@ public:
   ScreenManager();
   void draw();
   void onEvent(const Event &e) override;
-  void addPanel(Panel *panel);
-  Panel *getPanelById(uintptr_t id);
+  void addWindow(Window *window);
+  Window *getWindowById(uintptr_t id);
   void start();
-  void arrangeWindowStack();
 
 private:
   Adafruit_ILI9341 *tft = new Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
-  std::vector<Panel *> panels;
+  std::vector<Window *> windows;
   bool needs_redraw = true;
-  Panel *focused = nullptr;
+  Window *focused = nullptr;
   MenuBar *menubar = new MenuBar();
+  void arrangeWindowStack();
+  void createWindow(const char *title, int16_t w, int16_t h);
 };

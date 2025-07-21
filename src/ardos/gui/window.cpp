@@ -1,5 +1,7 @@
 #include "Adafruit_ILI9341.h"
+#include "Arduino.h"
 #include <ardos/gui/window.h>
+#include <ardos/kernel/config.h>
 #include <ardos/kernel/event_manager.h>
 
 Window::Window(int16_t x, int16_t y, int16_t w, int16_t h, const char *title)
@@ -38,8 +40,51 @@ void Window::onTouch(int16_t tx, int16_t ty) {
     return;
   }
 
+  if (ty >= y && ty <= y + 12) {
+    is_dragging = true;
+    drag_offset_x = tx - x;
+    drag_offset_y = ty - y;
+  }
+
   Serial.print("Window touched at: ");
   Serial.print(tx);
   Serial.print(", ");
   Serial.println(ty);
+}
+
+void Window::onDrag(int16_t tx, int16_t ty, Adafruit_ILI9341 &tft) {
+  if (!is_dragging)
+    return;
+
+  int16_t new_x = tx - drag_offset_x;
+  int16_t new_y = ty - drag_offset_y;
+  Serial.print("Dragging window to: ");
+  Serial.print(new_x);
+  Serial.print(", ");
+  Serial.println(new_y);
+
+  // Check bounds
+  if (new_x != x || new_y != y) {
+    Serial.println("Updating window position");
+    // Ensure the new position is within the screen bounds
+    if (new_x < 0)
+      new_x = 0;
+    if (new_y < 0)
+      new_y = 0;
+    if (new_x + width > tft.width())
+      new_x = tft.width() - width;
+    if (new_y + height > tft.height())
+      new_y = tft.height() - height;
+    // Clear previous position
+    tft.fillRect(x, y, width, height, ILI9341_BLACK);
+
+    // Set new position
+    prev_x = x;
+    prev_y = y;
+    x = new_x;
+    y = new_y;
+
+    // Redraw
+    draw(tft);
+  }
 }
