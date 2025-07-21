@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "ardos/kernel/config.h"
 #include <ardos/gui/screen_manager.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
@@ -207,12 +208,12 @@ void ScreenManager::createWindow(const char* title, int16_t w, int16_t h)
     }
 
     auto targetX = lastX + 20;
-    auto targetY = lastY + 20;
-    if (targetX + 120 > 320)
+    auto targetY = lastY + MENU_HEIGHT * 2;
+    if (targetX + 120 > SCREEN_WIDTH)
     {
         targetX = 0;
     }
-    if (targetY + 60 > 240)
+    if (targetY + 60 > SCREEN_HEIGHT)
     {
         targetY = 0;
     }

@@ -1,19 +1,19 @@
 #include <ardos/gui/menubar.h>
 #include <ardos/kernel/config.h>
 
-MenuBar::MenuBar() : Panel(0, 0, 320, 16)
+MenuBar::MenuBar() : Panel(0, 0, MENU_WIDTH, MENU_HEIGHT)
 {
 }
 
 void MenuBar::draw(Adafruit_ILI9341& tft)
 {
-    tft.fillRect(x, y, width, height, ILI9341_NAVY);
+    tft.fillRect(x, y, width, height, MENU_BG_COLOR);
     tft.setCursor(x + 4, y + 4);
-    tft.setTextColor(ILI9341_WHITE);
+    tft.setTextColor(MENU_TEXT_COLOR);
     tft.setTextSize(1);
     tft.print("Menu");
 
-    tft.setCursor(290, y + 4);
+    tft.setCursor(MENU_WIDTH - 40, y + 4);
     tft.print("ArdOS");
 }
 
