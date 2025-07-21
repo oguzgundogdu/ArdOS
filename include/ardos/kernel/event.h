@@ -2,12 +2,13 @@
 enum class EventType
 {
     Kill,
-    Focus,
-    Custom,
     TouchStart,
     TouchMove,
     TouchEnd,
-    TimeChanged
+    TimeChanged,
+    SleepRequest,
+    WakeRequest,
+    PowerSaveRequest,
 };
 
 struct Event

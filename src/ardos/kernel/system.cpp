@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "ardos/kernel/state.h"
 #include <Wire.h>
 #include <ardos/gui/screen_manager.h>
 #include <ardos/kernel/event_manager.h>
@@ -16,7 +17,7 @@ namespace ardos::kernel
         if (!is_initialized)
         {
             Wire.begin();
-            ardos::kernel::RTC::Start();
+            RTC::Start();
 
             Serial.begin(9600);
             Serial.println("ArdOS is starting...");
@@ -42,11 +43,13 @@ namespace ardos::kernel
         RTC::Tick(); // Update RTC and dispatch time change events
         input::poll();
         screenManager->Render();
-        delay(10); // Polling delay
-                   // This can be adjusted based on your needs
-                   // or replaced with an interrupt-based approach if needed
-                   // For example, you could use a timer to call input::poll() at regular
-                   // intervals or use a hardware interrupt to trigger input::poll() when a touch
-                   // is detected. This is a simple polling loop for demonstration purposes.
+        delay(ardos::kernel::state.is_sleeping
+                  ? 1000
+                  : 10); // Polling delay
+                         // This can be adjusted based on your needs
+                         // or replaced with an interrupt-based approach if needed
+                         // For example, you could use a timer to call input::poll() at regular
+                         // intervals or use a hardware interrupt to trigger input::poll() when a touch
+                         // is detected. This is a simple polling loop for demonstration purposes.
     }
 } // namespace ardos::kernel

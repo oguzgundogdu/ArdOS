@@ -1,7 +1,9 @@
 
+#include "ardos/kernel/config.h"
 #include <ardos/kernel/input.h>
 
 #include <ardos/kernel/event_manager.h> // Include the header for EventManager
+#include <ardos/kernel/state.h>
 #define T_CS 7
 
 XPT2046_Touchscreen ts(T_CS);
@@ -28,6 +30,14 @@ namespace input
 
         if (touching)
         {
+            ardos::kernel::state.last_touch_time = millis();
+            if (ardos::kernel::state.is_sleeping || ardos::kernel::state.is_power_saving)
+            {
+                ardos::kernel::state.is_sleeping = false;
+                ardos::kernel::state.is_power_saving = false;
+                ardos::kernel::EventManager::dispatch(Event{EventType::WakeRequest});
+            }
+
             TS_Point p = ts.getPoint();
             int16_t screenX = map(p.x, 200, 3800, 0, 320);
             int16_t screenY = map(p.y, 200, 3800, 0, 240);
@@ -65,6 +75,19 @@ namespace input
             e.type = EventType::TouchEnd;
             wasTouched = false;
             ardos::kernel::EventManager::dispatch(e);
+        }
+
+        if (millis() - ardos::kernel::state.last_touch_time > SLEEP_TIMEOUT && !ardos::kernel::state.is_sleeping)
+        {
+            ardos::kernel::state.is_sleeping = true;
+            ardos::kernel::state.is_power_saving = false; // Ensure we are not in power-saving mode
+            ardos::kernel::EventManager::dispatch(Event{EventType::SleepRequest});
+        }
+        else if (millis() - ardos::kernel::state.last_touch_time > POWER_SAVE_TIMEOUT &&
+                 !ardos::kernel::state.is_power_saving && !ardos::kernel::state.is_sleeping)
+        {
+            ardos::kernel::state.is_power_saving = true;
+            ardos::kernel::EventManager::dispatch(Event{EventType::PowerSaveRequest});
         }
     }
 

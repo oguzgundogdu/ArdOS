@@ -2,10 +2,6 @@
 #pragma once
 
 #include <cstdint>
-namespace ardos::ui
-{
-    class Panel;
-} // namespace ardos::ui
 
 namespace ardos::kernel
 {
@@ -16,6 +12,9 @@ namespace ardos::kernel
         uintptr_t focused_panel_id = 0;
         uintptr_t hovered_panel_id = 0;
         bool is_touch_down = false;
+        unsigned long last_touch_time = 0;
+        bool is_sleeping = false;
+        bool is_power_saving = false;
     };
 
     extern State state;

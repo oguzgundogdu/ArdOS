@@ -12,7 +12,7 @@ namespace ardos::kernel
         static void Tick();
 
       private:
-        static RTC_DS3231 rtc;
+        static RTC_DS3231* rtc;
         static DateTime last_known;
     };
 

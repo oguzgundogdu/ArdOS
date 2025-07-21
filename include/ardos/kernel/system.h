@@ -1,6 +1,6 @@
 #pragma once
-#include <RTClib.h>
 #include <ardos/gui/screen_manager.h>
+#include <ardos/kernel/rtc.h>
 
 namespace ardos::kernel
 {

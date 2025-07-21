@@ -1,4 +1,6 @@
+#include "Adafruit_ILI9341.h"
 #include "Arduino.h"
+#include "api/Common.h"
 #include "ardos/kernel/config.h"
 #include "ardos/kernel/event_listener.h"
 #include <ardos/gui/screen_manager.h>
@@ -11,6 +13,8 @@ ScreenManager::ScreenManager() = default;
 void ScreenManager::Start()
 {
     tft->begin();
+    pinMode(TFT_LED, OUTPUT);
+    digitalWrite(TFT_LED, HIGH);
     tft->setRotation(1);
     tft->fillScreen(ILI9341_BLACK);
 
@@ -56,6 +60,16 @@ void ScreenManager::OnEvent(const Event& e)
         onKill(e);
     case EventType::TimeChanged:
         menubar->draw(*tft);
+        break;
+
+    case EventType::SleepRequest:
+        onSleepRequest(e);
+        break;
+    case EventType::WakeRequest:
+        onWakeRequest(e);
+        break;
+    case EventType::PowerSaveRequest:
+        onPowerSaveRequest(e);
         break;
     }
 }
@@ -223,4 +237,22 @@ void ScreenManager::createWindow(const char* title, int16_t w, int16_t h)
 
     Window* window = new Window(targetX, targetY, w, h, title);
     this->addWindow(window);
+}
+
+void ScreenManager::onSleepRequest(const Event& e)
+{
+    Serial.println("Sleep request received, preparing to sleep...");
+    analogWrite(TFT_LED, SLEEP_BRIGHTNESS);
+}
+
+void ScreenManager::onWakeRequest(const Event& e)
+{
+    Serial.println("Wake request received, waking up...");
+    analogWrite(TFT_LED, DEFAULT_BRIGHTNESS);
+}
+
+void ScreenManager::onPowerSaveRequest(const Event& e)
+{
+    Serial.println("Power save request received, reducing brightness...");
+    analogWrite(TFT_LED, POWER_SAVE_BRIGHTNESS);
 }
