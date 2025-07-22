@@ -3,33 +3,35 @@
 #include <ardos/gui/window.h>
 #include <ardos/kernel/config.h>
 #include <ardos/kernel/event_manager.h>
+#include <ardos/kernel/screen.h>
 
 Window::Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title) : Panel(x, y, w, h), title(title)
 {
 }
 
-void Window::draw(Adafruit_ILI9341& tft)
+void Window::render()
 {
-    tft.fillRect(x, y, width, height, WINDOW_BG_COLOR);
-    tft.drawRect(x, y, width, height, isFocused() ? WINDOW_FOCUS_COLOR : WINDOW_BORDER_COLOR);
+    Screen* screen = Screen::getInstance();
+    screen->fillRect(x, y, width, height, WINDOW_BG_COLOR);
+    screen->drawRect(x, y, width, height, isFocused() ? WINDOW_FOCUS_COLOR : WINDOW_BORDER_COLOR);
 
     // title bar
-    tft.fillRect(x, y, width, WINDOW_TITLEBAR_HEIGHT, WINDOW_TITLEBAR_BG_COLOR);
-    tft.setCursor(x + 2, y + 2);
-    tft.setTextColor(WINDOW_TITLEBAR_TEXT_COLOR);
-    tft.setTextSize(WINDOW_TITLEBAR_TEXT_SIZE);
-    tft.print(title);
+    screen->fillRect(x, y, width, WINDOW_TITLEBAR_HEIGHT, WINDOW_TITLEBAR_BG_COLOR);
+    screen->setCursor(x + 2, y + 2);
+    screen->setTextColor(WINDOW_TITLEBAR_TEXT_COLOR);
+    screen->setTextSize(WINDOW_TITLEBAR_TEXT_SIZE);
+    screen->print(title);
 
     int16_t closeBoxX = x + width - WINDOW_CLOSE_BOX_X_MARGIN;
     int16_t closeBoxY = y + WINDOW_CLOSE_BOX_Y_MARGIN;
 
-    tft.fillRect(closeBoxX, closeBoxY, WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BG_COLOR);
-    tft.drawLine(closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET, closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
-                 closeBoxX + WINDOW_CLOSE_BOX_X_PADDING, closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING,
-                 WINDOW_CLOSE_TEXT_COLOR);
-    tft.drawLine(closeBoxX + WINDOW_CLOSE_BOX_X_PADDING, closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
-                 closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET, closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING,
-                 WINDOW_CLOSE_TEXT_COLOR);
+    screen->fillRect(closeBoxX, closeBoxY, WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BG_COLOR);
+    screen->drawLine(closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET, closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
+                     closeBoxX + WINDOW_CLOSE_BOX_X_PADDING, closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING,
+                     WINDOW_CLOSE_TEXT_COLOR);
+    screen->drawLine(closeBoxX + WINDOW_CLOSE_BOX_X_PADDING, closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
+                     closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET, closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING,
+                     WINDOW_CLOSE_TEXT_COLOR);
 }
 
 void Window::onTouch(int16_t tx, int16_t ty)
@@ -59,7 +61,7 @@ void Window::onTouch(int16_t tx, int16_t ty)
     Serial.println(ty);
 }
 
-void Window::onDrag(int16_t tx, int16_t ty, Adafruit_ILI9341& tft)
+void Window::onDrag(int16_t tx, int16_t ty)
 {
     if (!is_dragging)
         return;
@@ -91,7 +93,7 @@ void Window::onDrag(int16_t tx, int16_t ty, Adafruit_ILI9341& tft)
         if (new_y + height > SCREEN_HEIGHT - MENU_HEIGHT)
             new_y = SCREEN_HEIGHT - MENU_HEIGHT - height;
         // Clear previous position
-        tft.fillRect(x, y, width, height, ILI9341_BLACK);
+        Screen::getInstance()->fillRect(x, y, width, height, ILI9341_BLACK);
 
         // Set new position
         prev_x = x;
@@ -100,6 +102,6 @@ void Window::onDrag(int16_t tx, int16_t ty, Adafruit_ILI9341& tft)
         y = new_y;
 
         // Redraw
-        draw(tft);
+        render();
     }
 }

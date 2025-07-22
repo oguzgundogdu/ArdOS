@@ -16,5 +16,5 @@
 #define TFT_RST 8
 #define TFT_LED 6
 
-#define SLEEP_TIMEOUT 60 * 1000      // 5 minutes
-#define POWER_SAVE_TIMEOUT 30 * 1000 // 1 minute
+#define SLEEP_TIMEOUT 5 * 60 * 1000  // 5 minutes
+#define POWER_SAVE_TIMEOUT 60 * 1000 // 1 minute

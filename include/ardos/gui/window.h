@@ -25,9 +25,9 @@ class Window : public Panel
   public:
     Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title);
 
-    void draw(Adafruit_ILI9341& tft) override;
+    void render() override;
     void onTouch(int16_t tx, int16_t ty) override;
-    void onDrag(int16_t tx, int16_t ty, Adafruit_ILI9341& tft);
+    void onDrag(int16_t tx, int16_t ty);
 
   private:
     const char* title;

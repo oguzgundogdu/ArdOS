@@ -21,6 +21,9 @@ namespace ardos::kernel
 
             Serial.begin(9600);
             Serial.println("ArdOS is starting...");
+            Screen* screen = new Screen(SCREEN_WIDTH, SCREEN_HEIGHT);
+            screen->init();
+            Serial.println("Screen initialized");
 
             screenManager = new ScreenManager();
             screenManager->Start();
@@ -30,9 +33,6 @@ namespace ardos::kernel
 
             input::begin();
             Serial.println("Input system initialized");
-
-            ardos::kernel::EventManager::registerListener(screenManager);
-            Serial.println("EventManager registered");
 
             is_initialized = true;
         }

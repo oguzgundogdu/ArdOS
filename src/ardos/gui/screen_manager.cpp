@@ -1,30 +1,29 @@
 #include "Adafruit_ILI9341.h"
 #include "Arduino.h"
-#include "api/Common.h"
 #include "ardos/kernel/config.h"
 #include "ardos/kernel/event_listener.h"
+#include "ardos/kernel/event_manager.h"
 #include <ardos/gui/screen_manager.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
 #include <cstdint>
 
-ScreenManager::ScreenManager() = default;
+ScreenManager::ScreenManager()
+{
+    mScreen = Screen::getInstance();
+}
 
 void ScreenManager::Start()
 {
-    tft->begin();
-    pinMode(TFT_LED, OUTPUT);
-    digitalWrite(TFT_LED, HIGH);
-    tft->setRotation(1);
-    tft->fillScreen(ILI9341_BLACK);
 
-    menubar->draw(*tft);
-    menubar->setCallback(
-        [this]()
-        {
-            Serial.println("Menu bar clicked, creating new window");
-            createWindow("New Window", 120, 60);
-        });
+    menubar->render();
+    ardos::kernel::EventManager::registerListener(this);
+    // menubar->setCallback(
+    //     [this]()
+    //     {
+    //         Serial.println("Menu bar clicked, creating new window");
+    //         createWindow("New Window", 120, 60);
+    //     });
 }
 
 void ScreenManager::Render()
@@ -37,7 +36,7 @@ void ScreenManager::Render()
 
     for (auto* p : windows)
     {
-        p->draw(*tft);
+        p->render();
     }
 }
 
@@ -59,17 +58,7 @@ void ScreenManager::OnEvent(const Event& e)
     case EventType::Kill:
         onKill(e);
     case EventType::TimeChanged:
-        menubar->draw(*tft);
-        break;
-
-    case EventType::SleepRequest:
-        onSleepRequest(e);
-        break;
-    case EventType::WakeRequest:
-        onWakeRequest(e);
-        break;
-    case EventType::PowerSaveRequest:
-        onPowerSaveRequest(e);
+        menubar->render();
         break;
     }
 }
@@ -115,7 +104,7 @@ void ScreenManager::onTouchMove(const Event& e)
 {
     if (focused)
     {
-        focused->onDrag(e.x, e.y, *tft);
+        focused->onDrag(e.x, e.y);
     }
 }
 
@@ -151,7 +140,7 @@ void ScreenManager::onKill(const Event& e)
                 Serial.println("Window removed");
 
                 // Clear the area
-                tft->fillRect(px, py, pw, ph, ILI9341_BLACK);
+                mScreen->fillRect(px, py, pw, ph, ILI9341_BLACK);
 
                 std::vector<Window*> toRedraw;
                 for (auto it = windows.begin(); it != windows.end();)
@@ -169,7 +158,7 @@ void ScreenManager::onKill(const Event& e)
                 for (auto* p : toRedraw)
                 {
                     windows.push_back(p);
-                    p->draw(*tft);
+                    p->render();
                 }
             }
         }
@@ -237,22 +226,4 @@ void ScreenManager::createWindow(const char* title, int16_t w, int16_t h)
 
     Window* window = new Window(targetX, targetY, w, h, title);
     this->addWindow(window);
-}
-
-void ScreenManager::onSleepRequest(const Event& e)
-{
-    Serial.println("Sleep request received, preparing to sleep...");
-    analogWrite(TFT_LED, SLEEP_BRIGHTNESS);
-}
-
-void ScreenManager::onWakeRequest(const Event& e)
-{
-    Serial.println("Wake request received, waking up...");
-    analogWrite(TFT_LED, DEFAULT_BRIGHTNESS);
-}
-
-void ScreenManager::onPowerSaveRequest(const Event& e)
-{
-    Serial.println("Power save request received, reducing brightness...");
-    analogWrite(TFT_LED, POWER_SAVE_BRIGHTNESS);
 }
