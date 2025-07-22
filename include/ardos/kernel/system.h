@@ -1,5 +1,5 @@
 #pragma once
-#include <ardos/gui/screen_manager.h>
+
 #include <ardos/kernel/rtc.h>
 
 namespace ardos::kernel
@@ -13,7 +13,6 @@ namespace ardos::kernel
 
       private:
         static bool is_initialized;
-        static ScreenManager* screenManager;
     };
 
 } // namespace ardos::kernel

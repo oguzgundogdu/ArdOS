@@ -8,22 +8,23 @@
 #include <ardos/kernel/screen.h>
 #include <vector>
 
-class ScreenManager : public EventListener
+class GuiManager : public EventListener
 {
   public:
-    ScreenManager();
+    GuiManager();
     void Render();
     void OnEvent(const Event& e) override;
     void Start();
+    static GuiManager* getInstance();
+    void CreateWindow(const char* title, int16_t w, int16_t h);
 
   private:
-    Screen* mScreen = nullptr;
     std::vector<Window*> windows;
     bool needs_redraw = true;
     Window* focused = nullptr;
-    MenuBar* menubar = new MenuBar();
+    MenuBar* menubar = nullptr;
     void arrangeWindowStack();
-    void createWindow(const char* title, int16_t w, int16_t h);
+
     void addWindow(Window* window);
     Window* getWindowById(uintptr_t id);
     void onTouchStart(const Event& e);
@@ -33,4 +34,5 @@ class ScreenManager : public EventListener
     void onSleepRequest(const Event& e);
     void onWakeRequest(const Event& e);
     void onPowerSaveRequest(const Event& e);
+    static GuiManager* instance;
 };

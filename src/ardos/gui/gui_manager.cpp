@@ -3,21 +3,24 @@
 #include "ardos/kernel/config.h"
 #include "ardos/kernel/event_listener.h"
 #include "ardos/kernel/event_manager.h"
-#include <ardos/gui/screen_manager.h>
+#include <ardos/gui/gui_manager.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
 #include <cstdint>
 
-ScreenManager::ScreenManager()
+GuiManager* GuiManager::instance = nullptr;
+
+GuiManager::GuiManager()
 {
-    mScreen = Screen::getInstance();
 }
 
-void ScreenManager::Start()
+void GuiManager::Start()
 {
-
+    Serial.println("Starting GUI Manager...");
+    menubar = new MenuBar();
     menubar->render();
     ardos::kernel::EventManager::registerListener(this);
+    Serial.println("GUI Manager started");
     // menubar->setCallback(
     //     [this]()
     //     {
@@ -26,7 +29,7 @@ void ScreenManager::Start()
     //     });
 }
 
-void ScreenManager::Render()
+void GuiManager::Render()
 {
     if (!needs_redraw)
         return;
@@ -40,7 +43,7 @@ void ScreenManager::Render()
     }
 }
 
-void ScreenManager::OnEvent(const Event& e)
+void GuiManager::OnEvent(const Event& e)
 {
     switch (e.type)
     {
@@ -58,12 +61,12 @@ void ScreenManager::OnEvent(const Event& e)
     case EventType::Kill:
         onKill(e);
     case EventType::TimeChanged:
-        menubar->render();
+        // menubar->render();
         break;
     }
 }
 
-void ScreenManager::addWindow(Window* window)
+void GuiManager::addWindow(Window* window)
 {
     windows.push_back(window);
     Serial.print("Window added: ");
@@ -74,18 +77,13 @@ void ScreenManager::addWindow(Window* window)
     needs_redraw = true;
 }
 
-void ScreenManager::onTouchStart(const Event& e)
+void GuiManager::onTouchStart(const Event& e)
 {
     Serial.print("Touch start at: ");
     Serial.print(e.x);
     Serial.print(", ");
     Serial.println(e.y);
-    if (menubar->contains(e.x, e.y))
-    {
-        menubar->onTouch(e.x, e.y);
-        needs_redraw = true;
-        return;
-    }
+    menubar->onTouch(e.x, e.y);
     for (Window* w : windows)
     {
         if (w && w->contains(e.x, e.y))
@@ -100,7 +98,7 @@ void ScreenManager::onTouchStart(const Event& e)
     }
 }
 
-void ScreenManager::onTouchMove(const Event& e)
+void GuiManager::onTouchMove(const Event& e)
 {
     if (focused)
     {
@@ -108,11 +106,11 @@ void ScreenManager::onTouchMove(const Event& e)
     }
 }
 
-void ScreenManager::onTouchEnd(const Event& e)
+void GuiManager::onTouchEnd(const Event& e)
 {
 }
 
-void ScreenManager::onKill(const Event& e)
+void GuiManager::onKill(const Event& e)
 {
     for (auto* p : windows)
     {
@@ -137,10 +135,10 @@ void ScreenManager::onKill(const Event& e)
             if (it != windows.end())
             {
                 windows.erase(it);
+                delete p;
                 Serial.println("Window removed");
-
+                Screen* screen = Screen::getInstance();
                 // Clear the area
-                mScreen->fillRect(px, py, pw, ph, ILI9341_BLACK);
 
                 std::vector<Window*> toRedraw;
                 for (auto it = windows.begin(); it != windows.end();)
@@ -165,7 +163,7 @@ void ScreenManager::onKill(const Event& e)
     }
 }
 
-Window* ScreenManager::getWindowById(uintptr_t id)
+Window* GuiManager::getWindowById(uintptr_t id)
 {
     for (auto* p : windows)
     {
@@ -177,7 +175,7 @@ Window* ScreenManager::getWindowById(uintptr_t id)
     return nullptr;
 }
 
-void ScreenManager::arrangeWindowStack()
+void GuiManager::arrangeWindowStack()
 {
     for (int i = 0; i < windows.size(); i++)
     {
@@ -198,7 +196,7 @@ void ScreenManager::arrangeWindowStack()
     }
 }
 
-void ScreenManager::createWindow(const char* title, int16_t w, int16_t h)
+void GuiManager::CreateWindow(const char* title, int16_t w, int16_t h)
 {
     uintptr_t activePanel = ardos::kernel::state.active_panel_id;
     int16_t lastX = 0;
@@ -226,4 +224,13 @@ void ScreenManager::createWindow(const char* title, int16_t w, int16_t h)
 
     Window* window = new Window(targetX, targetY, w, h, title);
     this->addWindow(window);
+}
+
+GuiManager* GuiManager::getInstance()
+{
+    if (!instance)
+    {
+        instance = new GuiManager();
+    }
+    return instance;
 }

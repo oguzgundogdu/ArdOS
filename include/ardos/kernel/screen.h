@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ardos/kernel/event_listener.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
@@ -28,7 +30,6 @@ class Screen : public EventListener
   private:
     int width;
     int height;
-    uint16_t* framebuffer;
     Adafruit_ILI9341* tft;
     bool isInitialized = false;
     static Screen* instance;

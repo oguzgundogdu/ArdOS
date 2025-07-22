@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include <ardos/kernel/config.h>
 #include <ardos/kernel/event_manager.h>
 #include <ardos/kernel/screen.h>
@@ -7,7 +8,6 @@ Screen* Screen::instance = nullptr;
 
 Screen::Screen(int width, int height) : width(width), height(height)
 {
-    framebuffer = new uint16_t[width * height];
     tft = new Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
     instance = this;
 }
@@ -16,14 +16,16 @@ void Screen::init()
 {
     if (!isInitialized)
     {
+        Serial.println("Initializing screen...");
         tft->begin();
         pinMode(TFT_LED, OUTPUT);
         digitalWrite(TFT_LED, HIGH);
         tft->setRotation(1);
         this->clear();
         setBrightness(DEFAULT_BRIGHTNESS);
-        isInitialized = true;
+
         ardos::kernel::EventManager::registerListener(this);
+        isInitialized = true;
         Serial.println("Screen initialized");
     }
 }
@@ -35,9 +37,6 @@ void Screen::clear()
 
 void Screen::drawPixel(int x, int y, uint16_t color)
 {
-    if (x < 0 || x >= width || y < 0 || y >= height)
-        return;
-    framebuffer[y * width + x] = color;
     tft->drawPixel(x, y, color);
 }
 

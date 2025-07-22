@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Adafruit_ILI9341.h"
 #include <Arduino.h>
-#include <ardos/gui/panel.h>
+#include <ardos/gui/container.h>
 
 constexpr int WINDOW_BG_COLOR = ILI9341_LIGHTGREY;
 constexpr int WINDOW_BORDER_COLOR = ILI9341_BLACK;
@@ -20,7 +21,7 @@ constexpr int WINDOW_CLOSE_BOX_Y_PADDING = 8;
 constexpr int WINDOW_CLOSE_BOX_X_MARGIN = 12;
 constexpr int WINDOW_CLOSE_BOX_Y_MARGIN = 2;
 
-class Window : public Panel
+class Window : public Container
 {
   public:
     Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title);

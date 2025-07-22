@@ -1,16 +1,16 @@
 #include "Arduino.h"
 #include "ardos/kernel/state.h"
 #include <Wire.h>
-#include <ardos/gui/screen_manager.h>
+#include <ardos/gui/gui_manager.h>
 #include <ardos/kernel/event_manager.h>
 #include <ardos/kernel/input.h>
 #include <ardos/kernel/rtc.h>
+#include <ardos/kernel/screen.h>
 #include <ardos/kernel/system.h>
 
 namespace ardos::kernel
 {
     bool System::is_initialized = false;
-    ScreenManager* System::screenManager = nullptr;
 
     void System::Start()
     {
@@ -23,18 +23,15 @@ namespace ardos::kernel
             Serial.println("ArdOS is starting...");
             Screen* screen = new Screen(SCREEN_WIDTH, SCREEN_HEIGHT);
             screen->init();
-            Serial.println("Screen initialized");
 
-            screenManager = new ScreenManager();
-            screenManager->Start();
-            Serial.println("ScreenManager started");
-
-            Serial.println("RTC initialized");
+            GuiManager* guiManager = GuiManager::getInstance();
+            guiManager->Start();
 
             input::begin();
             Serial.println("Input system initialized");
 
             is_initialized = true;
+            Serial.println("System initialized");
         }
     }
 
@@ -42,7 +39,7 @@ namespace ardos::kernel
     {
         RTC::Tick(); // Update RTC and dispatch time change events
         input::poll();
-        screenManager->Render();
+        GuiManager::getInstance()->Render();
         delay(ardos::kernel::state.is_sleeping
                   ? 1000
                   : 10); // Polling delay

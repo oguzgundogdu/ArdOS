@@ -1,36 +1,46 @@
+#include "Arduino.h"
+#include "ardos/gui/button.h"
 #include <ardos/gui/contextmenu.h>
 #include <ardos/kernel/screen.h>
 
-ContextMenu::ContextMenu(int16_t x, int16_t y) : Panel(x, y, 100, 0)
+ContextMenu::ContextMenu(int16_t x, int16_t y) : Container(x, y, 100, 42)
 {
+    Serial.println("Creating ContextMenu");
 }
 
 void ContextMenu::addItem(const std::string& label, Callback callback)
 {
-    items.push_back({label, callback});
-    height = items.size() * ITEM_HEIGHT;
+    Serial.print("Adding item to ContextMenu: ");
+    Serial.println(label.c_str());
+    auto children = getChildren();
+    Button* button = new Button(x, y + children.size() * ITEM_HEIGHT, width, ITEM_HEIGHT, label.c_str());
+    button->setBackgroundColor(ILI9341_WHITE);
+    button->setBorderColor(ILI9341_BLACK);
+    button->setColor(ILI9341_BLACK);
+    button->setCallback(callback);
+    addChild(button);
+    Serial.println("Item added to ContextMenu");
 }
 
 void ContextMenu::render()
 {
+    Serial.println("Rendering ContextMenu");
     Screen* screen = Screen::getInstance();
-    screen->fillRect(x, y, width, height, ILI9341_WHITE);
-    screen->drawRect(x, y, width, height, ILI9341_BLACK);
-    screen->setTextSize(1);
 
-    for (size_t i = 0; i < items.size(); ++i)
+    if (is_visible)
     {
-        screen->setCursor(x + 4, y + i * ITEM_HEIGHT + 2);
-        screen->setTextColor(ILI9341_BLACK);
-        screen->print(items[i].label.c_str());
+        screen->fillRect(x, y, width, height, ILI9341_WHITE);
+        screen->drawRect(x, y, width, height, ILI9341_BLACK);
+        screen->setTextSize(1);
+        auto children = getChildren();
+        for (size_t i = 0; i < children.size(); ++i)
+        {
+            children[i]->render();
+        }
     }
-}
-
-void ContextMenu::onTouch(int16_t tx, int16_t ty)
-{
-    int index = (ty - y) / ITEM_HEIGHT;
-    if (index >= 0 && index < (int)items.size())
+    else
     {
-        items[index].callback();
+        screen->fillRect(x, y, width, height, ILI9341_BLACK);
     }
+    Serial.println("ContextMenu rendered");
 }

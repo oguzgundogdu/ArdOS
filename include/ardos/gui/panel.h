@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Adafruit_ILI9341.h>
+#include "Adafruit_ILI9341.h"
 #include <functional>
 
 class Panel
@@ -9,13 +9,18 @@ class Panel
     using Callback = std::function<void()>;
     int x, y, width, height;
     bool focused = false;
+    bool is_visible = true;
     Callback mCallback;
+    int color = ILI9341_WHITE;           // Default color
+    int backgroundColor = ILI9341_BLACK; // Default background color
+    int borderColor = ILI9341_WHITE;     // Default border color
 
   public:
     Panel(int x, int y, int width, int height);
-    virtual void render() = 0;
+    virtual ~Panel();
+    virtual void render();
     virtual bool contains(int px, int py);
-    virtual void onTouch(int16_t tx, int16_t ty); // default empty
+    virtual void onTouch(int16_t tx, int16_t ty);
     bool intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh);
     int getX() const
     {
@@ -42,6 +47,12 @@ class Panel
         return focused;
     }
 
+    void setVisible(bool visible);
+    bool isVisible() const
+    {
+        return is_visible;
+    }
+
     void setCallback(Callback cb)
     {
         mCallback = std::move(cb);
@@ -50,5 +61,31 @@ class Panel
     Callback getCallback() const
     {
         return mCallback;
+    }
+
+    void setColor(int newColor)
+    {
+        color = newColor;
+    }
+    int getColor() const
+    {
+        return color;
+    }
+
+    void setBackgroundColor(int newBackgroundColor)
+    {
+        backgroundColor = newBackgroundColor;
+    }
+    int getBackgroundColor() const
+    {
+        return backgroundColor;
+    }
+    void setBorderColor(int newBorderColor)
+    {
+        borderColor = newBorderColor;
+    }
+    int getBorderColor() const
+    {
+        return borderColor;
     }
 };

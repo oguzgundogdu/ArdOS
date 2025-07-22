@@ -5,7 +5,7 @@
 #include <ardos/kernel/event_manager.h>
 #include <ardos/kernel/screen.h>
 
-Window::Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title) : Panel(x, y, w, h), title(title)
+Window::Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title) : Container(x, y, w, h), title(title)
 {
 }
 

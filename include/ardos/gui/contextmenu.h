@@ -1,11 +1,10 @@
 #pragma once
 
-#include <ardos/gui/panel.h>
+#include <ardos/gui/container.h>
 #include <functional>
 #include <string>
-#include <vector>
 
-class ContextMenu : public Panel
+class ContextMenu : public Container
 {
   public:
     using Callback = std::function<void()>;
@@ -20,9 +19,7 @@ class ContextMenu : public Panel
 
     void addItem(const std::string& label, Callback callback);
     void render() override;
-    void onTouch(int16_t tx, int16_t ty) override;
 
   private:
-    std::vector<MenuItem> items;
     static constexpr int ITEM_HEIGHT = 14;
 };
