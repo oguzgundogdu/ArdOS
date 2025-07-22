@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include "ardos/kernel/state.h"
 #include <Wire.h>
 #include <ardos/gui/gui_manager.h>
 #include <ardos/kernel/event_manager.h>
@@ -10,43 +9,31 @@
 
 namespace ardos::kernel
 {
-    bool System::is_initialized = false;
+    System* System::instance = nullptr;
 
-    void System::Start()
+    void System::start(ardos::kernel::ProcessContext* context)
     {
-        if (!is_initialized)
-        {
-            Wire.begin();
-            RTC::Start();
+        Wire.begin();
+        RTC::Start();
 
-            Serial.begin(9600);
-            Serial.println("ArdOS is starting...");
-            Screen* screen = new Screen(SCREEN_WIDTH, SCREEN_HEIGHT);
-            screen->init();
+        Serial.begin(9600);
+        Serial.println("ArdOS is starting...");
+        Screen* screen = new Screen(SCREEN_WIDTH, SCREEN_HEIGHT);
+        screen->init();
 
-            GuiManager* guiManager = GuiManager::getInstance();
-            guiManager->Start();
-
-            input::begin();
-            Serial.println("Input system initialized");
-
-            is_initialized = true;
-            Serial.println("System initialized");
-        }
+        input::begin();
+        Serial.println("System initialized");
     }
 
-    void System::Poll()
+    void System::stop()
     {
-        RTC::Tick(); // Update RTC and dispatch time change events
+        Wire.end();
+        Serial.end();
+    }
+
+    void System::run()
+    {
+        RTC::Tick();
         input::poll();
-        GuiManager::getInstance()->Render();
-        delay(ardos::kernel::state.is_sleeping
-                  ? 1000
-                  : 10); // Polling delay
-                         // This can be adjusted based on your needs
-                         // or replaced with an interrupt-based approach if needed
-                         // For example, you could use a timer to call input::poll() at regular
-                         // intervals or use a hardware interrupt to trigger input::poll() when a touch
-                         // is detected. This is a simple polling loop for demonstration purposes.
     }
 } // namespace ardos::kernel

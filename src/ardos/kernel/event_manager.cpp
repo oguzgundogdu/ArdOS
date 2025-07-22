@@ -18,4 +18,13 @@ namespace ardos::kernel
         listeners.push_back(listener);
     }
 
+    void EventManager::unregisterListener(EventListener* listener)
+    {
+        auto it = std::remove(listeners.begin(), listeners.end(), listener);
+        if (it != listeners.end())
+        {
+            listeners.erase(it, listeners.end());
+        }
+    }
+
 } // namespace ardos::kernel

@@ -5,17 +5,22 @@
 #include <ardos/gui/window.h>
 #include <ardos/kernel/config.h>
 #include <ardos/kernel/event_listener.h>
+#include <ardos/kernel/process.h>
 #include <ardos/kernel/screen.h>
 #include <vector>
 
-class GuiManager : public EventListener
+using namespace ardos::kernel;
+
+class Compositor : public EventListener, public Application
 {
   public:
-    GuiManager();
+    Compositor();
     void Render();
     void OnEvent(const Event& e) override;
-    void Start();
-    static GuiManager* getInstance();
+    void start(ProcessContext* context) override;
+    void stop() override;
+    void run() override;
+    static Compositor* getInstance();
     void CreateWindow(const char* title, int16_t w, int16_t h);
 
   private:
@@ -34,5 +39,5 @@ class GuiManager : public EventListener
     void onSleepRequest(const Event& e);
     void onWakeRequest(const Event& e);
     void onPowerSaveRequest(const Event& e);
-    static GuiManager* instance;
+    static Compositor* instance;
 };

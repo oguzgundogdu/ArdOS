@@ -1,26 +1,25 @@
-#include "Adafruit_ILI9341.h"
 #include "Arduino.h"
 #include "ardos/kernel/config.h"
 #include "ardos/kernel/event_listener.h"
 #include "ardos/kernel/event_manager.h"
-#include <ardos/gui/gui_manager.h>
+#include <ardos/gui/compositor.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
 #include <cstdint>
 
-GuiManager* GuiManager::instance = nullptr;
+Compositor* Compositor::instance = nullptr;
 
-GuiManager::GuiManager()
+Compositor::Compositor()
 {
 }
 
-void GuiManager::Start()
+void Compositor::start(ProcessContext* context)
 {
-    Serial.println("Starting GUI Manager...");
+    Serial.println("Starting Compositor...");
     menubar = new MenuBar();
     menubar->render();
     ardos::kernel::EventManager::registerListener(this);
-    Serial.println("GUI Manager started");
+    Serial.println("Compositor started");
     // menubar->setCallback(
     //     [this]()
     //     {
@@ -29,7 +28,26 @@ void GuiManager::Start()
     //     });
 }
 
-void GuiManager::Render()
+void Compositor::stop()
+{
+    Serial.println("Stopping Compositor...");
+    ardos::kernel::EventManager::unregisterListener(this);
+    for (auto* window : windows)
+    {
+        delete window;
+    }
+    windows.clear();
+    delete menubar;
+    menubar = nullptr;
+    Serial.println("Compositor stopped");
+}
+
+void Compositor::run()
+{
+    Render();
+}
+
+void Compositor::Render()
 {
     if (!needs_redraw)
         return;
@@ -43,7 +61,7 @@ void GuiManager::Render()
     }
 }
 
-void GuiManager::OnEvent(const Event& e)
+void Compositor::OnEvent(const Event& e)
 {
     switch (e.type)
     {
@@ -66,7 +84,7 @@ void GuiManager::OnEvent(const Event& e)
     }
 }
 
-void GuiManager::addWindow(Window* window)
+void Compositor::addWindow(Window* window)
 {
     windows.push_back(window);
     Serial.print("Window added: ");
@@ -77,7 +95,7 @@ void GuiManager::addWindow(Window* window)
     needs_redraw = true;
 }
 
-void GuiManager::onTouchStart(const Event& e)
+void Compositor::onTouchStart(const Event& e)
 {
     Serial.print("Touch start at: ");
     Serial.print(e.x);
@@ -98,7 +116,7 @@ void GuiManager::onTouchStart(const Event& e)
     }
 }
 
-void GuiManager::onTouchMove(const Event& e)
+void Compositor::onTouchMove(const Event& e)
 {
     if (focused)
     {
@@ -106,11 +124,11 @@ void GuiManager::onTouchMove(const Event& e)
     }
 }
 
-void GuiManager::onTouchEnd(const Event& e)
+void Compositor::onTouchEnd(const Event& e)
 {
 }
 
-void GuiManager::onKill(const Event& e)
+void Compositor::onKill(const Event& e)
 {
     for (auto* p : windows)
     {
@@ -137,8 +155,6 @@ void GuiManager::onKill(const Event& e)
                 windows.erase(it);
                 delete p;
                 Serial.println("Window removed");
-                Screen* screen = Screen::getInstance();
-                // Clear the area
 
                 std::vector<Window*> toRedraw;
                 for (auto it = windows.begin(); it != windows.end();)
@@ -163,7 +179,7 @@ void GuiManager::onKill(const Event& e)
     }
 }
 
-Window* GuiManager::getWindowById(uintptr_t id)
+Window* Compositor::getWindowById(uintptr_t id)
 {
     for (auto* p : windows)
     {
@@ -175,7 +191,7 @@ Window* GuiManager::getWindowById(uintptr_t id)
     return nullptr;
 }
 
-void GuiManager::arrangeWindowStack()
+void Compositor::arrangeWindowStack()
 {
     for (int i = 0; i < windows.size(); i++)
     {
@@ -196,7 +212,7 @@ void GuiManager::arrangeWindowStack()
     }
 }
 
-void GuiManager::CreateWindow(const char* title, int16_t w, int16_t h)
+void Compositor::CreateWindow(const char* title, int16_t w, int16_t h)
 {
     uintptr_t activePanel = ardos::kernel::state.active_panel_id;
     int16_t lastX = 0;
@@ -226,11 +242,11 @@ void GuiManager::CreateWindow(const char* title, int16_t w, int16_t h)
     this->addWindow(window);
 }
 
-GuiManager* GuiManager::getInstance()
+Compositor* Compositor::getInstance()
 {
     if (!instance)
     {
-        instance = new GuiManager();
+        instance = new Compositor();
     }
     return instance;
 }

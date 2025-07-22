@@ -11,6 +11,7 @@ namespace ardos::kernel
         static std::vector<EventListener*> listeners;
         static void dispatch(const Event& event);
         static void registerListener(EventListener* listener);
+        static void unregisterListener(EventListener* listener);
     };
 
 } // namespace ardos::kernel

@@ -1,8 +1,15 @@
 #include "Arduino.h"
+#include "ardos/kernel/bus/message_bus.h"
+#include <ardos/kernel/bus/draw_line_message.h>
+#include <ardos/kernel/bus/draw_pixel_message.h>
+#include <ardos/kernel/bus/draw_rect_message.h>
+#include <ardos/kernel/bus/fill_rect_message.h>
 #include <ardos/kernel/config.h>
 #include <ardos/kernel/event_manager.h>
 #include <ardos/kernel/screen.h>
 #include <ardos/kernel/state.h>
+
+using namespace ardos::kernel::bus;
 
 Screen* Screen::instance = nullptr;
 
@@ -24,7 +31,6 @@ void Screen::init()
         this->clear();
         setBrightness(DEFAULT_BRIGHTNESS);
 
-        ardos::kernel::EventManager::registerListener(this);
         isInitialized = true;
         Serial.println("Screen initialized");
     }
@@ -90,21 +96,42 @@ Screen* Screen::getInstance()
     return instance;
 }
 
-void Screen::OnEvent(const Event& e)
+void Screen::onMessage(const std::string& topic, const Message& message)
 {
-    switch (e.type)
+    if (message.getType() != MessageType::Screen)
+        return;
+
+    if (topic == "screen/drawPixel")
     {
-    case EventType::SleepRequest:
-        setSleepMode(true);
-        break;
-    case EventType::WakeRequest:
-        setSleepMode(false);
-        break;
-    case EventType::PowerSaveRequest:
+        DrawPixelMessage msg = static_cast<const DrawPixelMessage&>(message);
+        drawPixel(msg.getX(), msg.getY(), msg.getColor());
+    }
+    else if (topic == "screen/drawRect")
+    {
+        DrawRectMessage msg = static_cast<const DrawRectMessage&>(message);
+        drawRect(msg.getX(), msg.getY(), msg.getWidth(), msg.getHeight(), msg.getColor());
+    }
+    else if (topic == "screen/drawLine")
+    {
+        DrawLineMessage msg = static_cast<const DrawLineMessage&>(message);
+        drawLine(msg.getX1(), msg.getY1(), msg.getX2(), msg.getY2(), msg.getColor());
+    }
+    else if (topic == "screen/fillRect")
+    {
+        FillRectMessage msg = static_cast<const FillRectMessage&>(message);
+        fillRect(msg.getX(), msg.getY(), msg.getWidth(), msg.getHeight(), msg.getColor());
+    }
+    else if (topic == "screen/clear")
+    {
+        clear();
+    }
+    else if (topic == "screen/powerSave")
+    {
         setPowerSaveMode(true);
-        break;
-    default:
-        break;
+    }
+    else if (topic == "screen/sleep")
+    {
+        setSleepMode(true);
     }
 }
 
