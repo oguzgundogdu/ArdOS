@@ -18,7 +18,6 @@ class Panel
   public:
     Panel(int x, int y, int width, int height);
     virtual ~Panel();
-    virtual void render();
     virtual bool contains(int px, int py);
     virtual void onTouch(int16_t tx, int16_t ty);
     bool intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh);
@@ -30,6 +29,19 @@ class Panel
     {
         return y;
     }
+    void setX(int newX)
+    {
+        x = newX;
+    }
+    void setY(int newY)
+    {
+        y = newY;
+    }
+    void setPosition(int newX, int newY)
+    {
+        x = newX;
+        y = newY;
+    }
     int getWidth() const
     {
         return width;
@@ -37,6 +49,18 @@ class Panel
     int getHeight() const
     {
         return height;
+    }
+    void setSize(int newWidth, int newHeight)
+    {
+        width = newWidth;
+        height = newHeight;
+    }
+    void setDimensions(int newX, int newY, int newWidth, int newHeight)
+    {
+        x = newX;
+        y = newY;
+        width = newWidth;
+        height = newHeight;
     }
     void setFocused(bool state)
     {

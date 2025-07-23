@@ -1,33 +1,15 @@
-#include "ardos/kernel/process.h"
-#include "ardos/kernel/system.h"
+#include "ardos/kernel/kernel.h"
 
 using namespace ardos::kernel;
 
-void startSystem()
-{
-    System* system = System::getInstance();
-    ProcessContext* systemContext = new ProcessContext();
-    Process* systemProcess = new Process("System", systemContext, system);
-    ProcessManager::addProcess(systemProcess);
-    system->start(systemContext);
-}
-
-void startCompositor()
-{
-    System* system = System::getInstance();
-    ProcessContext* compositorContext = new ProcessContext();
-    Process* compositorProcess = new Process("Compositor", compositorContext, system);
-    ProcessManager::addProcess(compositorProcess);
-    system->start(compositorContext);
-}
+Kernel* kernel = Kernel::getInstance();
 
 void setup()
 {
-    startSystem();
-    startCompositor();
+    kernel->start();
 }
 
 void loop()
 {
-    ProcessManager::tick();
+    kernel->run();
 }

@@ -1,14 +1,16 @@
 #pragma once
 
-#include "ardos/kernel/bus/message_bus.h"
+#include "ardos/bus/message_bus.h"
+
+using namespace ardos::bus;
 
 namespace ardos::kernel::bus
 {
     class DrawLineMessage : public Message
     {
       public:
-        DrawLineMessage(int x1, int y1, int x2, int y2, uint16_t color, uint32_t source_pid)
-            : Message{MessageType::Screen, source_pid}, x1(x1), y1(y1), x2(x2), y2(y2), color(color)
+        DrawLineMessage(int x1, int y1, int x2, int y2, uint16_t color, uint32_t source_pid, MessageType type)
+            : Message{type, source_pid}, x1(x1), y1(y1), x2(x2), y2(y2), color(color)
         {
         }
 

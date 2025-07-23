@@ -1,11 +1,15 @@
 #include "Arduino.h"
-#include "ardos/kernel/config.h"
+
+#include "ardos/gui/bus/create_window_message.h"
+#include "ardos/kernel/bus/message_bus.h"
 #include "ardos/kernel/event_listener.h"
 #include "ardos/kernel/event_manager.h"
 #include <ardos/gui/compositor.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
 #include <cstdint>
+
+using namespace ardos::kernel::bus;
 
 Compositor* Compositor::instance = nullptr;
 
@@ -19,6 +23,7 @@ void Compositor::start(ProcessContext* context)
     menubar = new MenuBar();
     menubar->render();
     ardos::kernel::EventManager::registerListener(this);
+    ardos::kernel::bus::MessageBus::subscribe("render", this);
     Serial.println("Compositor started");
     // menubar->setCallback(
     //     [this]()
@@ -55,9 +60,12 @@ void Compositor::Render()
 
     arrangeWindowStack();
 
-    for (auto* p : windows)
+    for (auto& [key, windowList] : windows)
     {
-        p->render();
+        for (auto* p : windowList)
+        {
+            renderWindow(p);
+        }
     }
 }
 
@@ -84,15 +92,20 @@ void Compositor::OnEvent(const Event& e)
     }
 }
 
-void Compositor::addWindow(Window* window)
+void Compositor::onMessage(const std::string& topic, const Message& message)
 {
-    windows.push_back(window);
-    Serial.print("Window added: ");
-    Serial.println((uintptr_t)window);
-    ardos::kernel::state.active_panel_id = (uintptr_t)window;
-    focused = window;
-    window->setFocused(true);
-    needs_redraw = true;
+    if (message.getType() != ardos::kernel::bus::MessageType::Render)
+        return;
+
+    if (topic == "screen/createWindow")
+    {
+        auto* createWindowMessage = static_cast<const CreateWindowMessage*>(&message);
+        if (createWindowMessage)
+        {
+            createWindow(createWindowMessage->getTitle(), createWindowMessage->getWidth(),
+                         createWindowMessage->getHeight());
+        }
+    }
 }
 
 void Compositor::onTouchStart(const Event& e)
@@ -177,69 +190,6 @@ void Compositor::onKill(const Event& e)
             }
         }
     }
-}
-
-Window* Compositor::getWindowById(uintptr_t id)
-{
-    for (auto* p : windows)
-    {
-        if ((uintptr_t)p == id)
-        {
-            return p;
-        }
-    }
-    return nullptr;
-}
-
-void Compositor::arrangeWindowStack()
-{
-    for (int i = 0; i < windows.size(); i++)
-    {
-        Window* p = windows[i];
-        if (p != nullptr)
-        {
-            if (i == windows.size() - 1)
-            {
-                windows[i]->setFocused(true);
-                focused = p;
-                ardos::kernel::state.active_panel_id = (uintptr_t)p;
-            }
-            else
-            {
-                windows[i]->setFocused(false);
-            }
-        }
-    }
-}
-
-void Compositor::CreateWindow(const char* title, int16_t w, int16_t h)
-{
-    uintptr_t activePanel = ardos::kernel::state.active_panel_id;
-    int16_t lastX = 0;
-    int16_t lastY = 0;
-    if (activePanel != 0)
-    {
-        Window* activePanelPtr = getWindowById(activePanel);
-        if (activePanelPtr)
-        {
-            lastX = activePanelPtr->getX();
-            lastY = activePanelPtr->getY();
-        }
-    }
-
-    auto targetX = lastX + 20;
-    auto targetY = lastY + MENU_HEIGHT * 2;
-    if (targetX + 120 > SCREEN_WIDTH)
-    {
-        targetX = 0;
-    }
-    if (targetY + 60 > SCREEN_HEIGHT)
-    {
-        targetY = 0;
-    }
-
-    Window* window = new Window(targetX, targetY, w, h, title);
-    this->addWindow(window);
 }
 
 Compositor* Compositor::getInstance()

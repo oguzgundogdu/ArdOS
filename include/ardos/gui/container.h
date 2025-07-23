@@ -7,7 +7,6 @@ class Container : public Panel
     Container(int x, int y, int width, int height);
     ~Container() override;
 
-    void render() override;
     void onTouch(int16_t tx, int16_t ty) override;
 
     void addChild(Panel* panel);

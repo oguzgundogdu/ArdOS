@@ -1,14 +1,16 @@
 #pragma once
 
-#include "ardos/kernel/bus/message_bus.h"
+#include "ardos/bus/message_bus.h"
+
+using namespace ardos::bus;
 
 namespace ardos::kernel::bus
 {
     class DrawRectMessage : public Message
     {
       public:
-        DrawRectMessage(int x, int y, int width, int height, uint16_t color, uint32_t source_pid)
-            : Message{MessageType::Screen, source_pid}, x(x), y(y), width(width), height(height), color(color)
+        DrawRectMessage(int x, int y, int width, int height, uint16_t color, uint32_t source_pid, MessageType type)
+            : Message{type, source_pid}, x(x), y(y), width(width), height(height), color(color)
         {
         }
 

@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <ardos/gui/panel.h>
-#include <ardos/kernel/screen.h>
 
 Panel::Panel(int x, int y, int width, int height) : x(x), y(y), width(width), height(height)
 {
@@ -30,18 +29,6 @@ void Panel::onTouch(int16_t tx, int16_t ty)
         if (mCallback)
             mCallback();
     }
-}
-
-void Panel::render()
-{
-    if (!is_visible)
-        return;
-
-    Screen* screen = Screen::getInstance();
-    screen->fillRect(x, y, width, height, backgroundColor);
-    screen->drawRect(x, y, width, height, borderColor);
-    screen->setTextColor(color);
-    screen->setTextSize(1);
 }
 
 bool Panel::intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh)

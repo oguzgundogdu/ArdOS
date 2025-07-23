@@ -1,6 +1,6 @@
-#include "ardos/kernel/bus/message_bus.h"
+#include "ardos/bus/message_bus.h"
 
-using namespace ardos::kernel::bus;
+using namespace ardos::bus;
 
 std::map<std::string, std::vector<MessageListener*>>* MessageBus::subscribers =
     new std::map<std::string, std::vector<MessageListener*>>();

@@ -6,18 +6,21 @@
 #include <string>
 #include <vector>
 
-namespace ardos::kernel::bus
+namespace ardos::bus
 {
 
-    enum class MessageType
+    enum class MessageType : uint16_t
     {
-        Screen
+        Display = 1 << 0,
+        Render = 1 << 1,
+        Input = 1 << 2,
+        Time = 1 << 3
     };
 
     class Message
     {
       public:
-        Message(MessageType type, uint32_t source_pid) : type(type), source_pid(source_pid)
+        Message(MessageType type, uint32_t source_pid = 0) : type(type), source_pid(source_pid)
         {
         }
 
@@ -57,4 +60,4 @@ namespace ardos::kernel::bus
         static std::map<std::string, std::vector<MessageListener*>>* subscribers;
     };
 
-} // namespace ardos::kernel::bus
+} // namespace ardos::bus

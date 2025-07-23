@@ -12,6 +12,7 @@ constexpr int WINDOW_TITLEBAR_BG_COLOR = ILI9341_DARKGREY;
 constexpr int WINDOW_TITLEBAR_TEXT_COLOR = ILI9341_WHITE;
 constexpr int WINDOW_TITLEBAR_TEXT_SIZE = 1;
 constexpr int WINDOW_CLOSE_BG_COLOR = ILI9341_RED;
+constexpr int WINDOW_CLOSE_BORDER_COLOR = ILI9341_RED;
 constexpr int WINDOW_CLOSE_TEXT_COLOR = ILI9341_WHITE;
 constexpr int WINDOW_CLOSE_BOX_SIZE = 10;
 constexpr int WINDOW_CLOSE_BOX_X_OFFSET = 2;
@@ -26,16 +27,27 @@ class Window : public Container
   public:
     Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title);
 
-    void render() override;
     void onTouch(int16_t tx, int16_t ty) override;
     void onDrag(int16_t tx, int16_t ty);
+    const char* getTitle() const
+    {
+        return title;
+    }
+    void setTitle(const char* newTitle)
+    {
+        title = newTitle;
+    }
+    bool isDragging() const
+    {
+        return is_dragging;
+    }
+    void setDragging(bool dragging)
+    {
+        is_dragging = dragging;
+    }
 
   private:
     const char* title;
     bool is_visible = true;
     bool is_dragging = false;
-    int16_t drag_offset_x = 0;
-    int16_t drag_offset_y = 0;
-    int16_t prev_x = -1;
-    int16_t prev_y = -1;
 };
