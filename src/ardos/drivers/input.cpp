@@ -1,11 +1,10 @@
 #include "ardos/bus/message_bus.h"
 #include <XPT2046_Touchscreen.h>
-#include <ardos/drivers/bus/touch_message.h>
+#include <ardos/bus/touch_message.h>
 #include <ardos/drivers/input.h>
 #include <ardos/kernel/state.h>
 
 using namespace ardos::bus;
-using namespace ardos::drivers::bus;
 
 namespace
 {
@@ -18,6 +17,11 @@ namespace
 
 namespace ardos::drivers
 {
+    InputDriver* InputDriver::instance = nullptr;
+
+    InputDriver::InputDriver() = default;
+
+    InputDriver::~InputDriver() = default;
 
     void InputDriver::start()
     {

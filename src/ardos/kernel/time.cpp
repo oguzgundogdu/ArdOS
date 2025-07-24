@@ -4,6 +4,7 @@
 #include <ardos/kernel/display.h>
 #include <ardos/kernel/power.h>
 #include <ardos/kernel/time.h>
+#include <ctime>
 
 using namespace ardos::bus;
 using namespace ardos::drivers::bus;

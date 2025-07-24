@@ -2,6 +2,7 @@
 
 // Adjust the include path to the correct relative location
 #include "../../bus/message_bus.h"
+#include <ctime>
 
 using namespace ardos::bus;
 

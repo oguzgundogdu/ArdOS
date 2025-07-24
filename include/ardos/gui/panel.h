@@ -9,7 +9,7 @@ using namespace ardos::gui::event;
 class Panel : public ComponentEventListener
 {
   protected:
-    using Callback = std::function<void(void* data)>;
+    using Callback = std::function<void()>;
     int x, y, width, height;
     bool focused = false;
     bool is_visible = true;

@@ -1,140 +1,73 @@
-#include "Arduino.h"
-
-#include "ardos/gui/bus/create_window_message.h"
-#include "ardos/kernel/bus/message_bus.h"
-#include "ardos/kernel/event_listener.h"
-#include "ardos/kernel/event_manager.h"
+#include "ardos/bus/message_bus.h"
+#include "ardos/process/process_context.h"
+#include <ardos/bus/touch_message.h>
 #include <ardos/gui/compositor.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
-#include <cstdint>
 
-using namespace ardos::kernel::bus;
-
-Compositor* Compositor::instance = nullptr;
+using namespace ardos::bus;
 
 Compositor::Compositor()
 {
 }
 
+void Compositor::Render()
+{
+}
+
 void Compositor::start(ProcessContext* context)
 {
-    Serial.println("Starting Compositor...");
-    menubar = new MenuBar();
-    menubar->render();
-    ardos::kernel::EventManager::registerListener(this);
-    ardos::kernel::bus::MessageBus::subscribe("render", this);
-    Serial.println("Compositor started");
-    // menubar->setCallback(
-    //     [this]()
-    //     {
-    //         Serial.println("Menu bar clicked, creating new window");
-    //         createWindow("New Window", 120, 60);
-    //     });
+
+    // Register for touch messages
+    MessageBus::subscribe(TOUCH_START_MESSAGE, this);
+    MessageBus::subscribe(TOUCH_MOVE_MESSAGE, this);
+    MessageBus::subscribe(TOUCH_END_MESSAGE, this);
+
+    // Register for window messages
+    MessageBus::subscribe("render/window", this);
 }
 
 void Compositor::stop()
 {
-    Serial.println("Stopping Compositor...");
-    ardos::kernel::EventManager::unregisterListener(this);
-    for (auto* window : windows)
-    {
-        delete window;
-    }
-    windows.clear();
-    delete menubar;
-    menubar = nullptr;
-    Serial.println("Compositor stopped");
 }
 
 void Compositor::run()
 {
-    Render();
-}
-
-void Compositor::Render()
-{
-    if (!needs_redraw)
-        return;
-    needs_redraw = false;
-
-    arrangeWindowStack();
-
-    for (auto& [key, windowList] : windows)
-    {
-        for (auto* p : windowList)
-        {
-            renderWindow(p);
-        }
-    }
-}
-
-void Compositor::OnEvent(const Event& e)
-{
-    switch (e.type)
-    {
-    case EventType::TouchStart:
-        onTouchStart(e);
-        break;
-
-    case EventType::TouchMove:
-        onTouchMove(e);
-        break;
-
-    case EventType::TouchEnd:
-        onTouchEnd(e);
-        break;
-    case EventType::Kill:
-        onKill(e);
-    case EventType::TimeChanged:
-        // menubar->render();
-        break;
-    }
 }
 
 void Compositor::onMessage(const std::string& topic, const Message& message)
 {
-    if (message.getType() != ardos::kernel::bus::MessageType::Render)
-        return;
-
-    if (topic == "screen/createWindow")
+    if (topic == "render/window")
     {
-        auto* createWindowMessage = static_cast<const CreateWindowMessage*>(&message);
-        if (createWindowMessage)
-        {
-            createWindow(createWindowMessage->getTitle(), createWindowMessage->getWidth(),
-                         createWindowMessage->getHeight());
-        }
+    }
+    else if (topic == TOUCH_START_MESSAGE)
+    {
+        onTouchStart(static_cast<const TouchMessage&>(message));
     }
 }
 
-void Compositor::onTouchStart(const Event& e)
+void Compositor::onTouchStart(const TouchMessage& message)
 {
-    Serial.print("Touch start at: ");
-    Serial.print(e.x);
-    Serial.print(", ");
-    Serial.println(e.y);
-    menubar->onTouch(e.x, e.y);
-    for (Window* w : windows)
+
+    for (auto& [pid, panels] : mPanels)
     {
-        if (w && w->contains(e.x, e.y))
+        for (Panel* p : panels)
         {
-            windows.erase(std::remove(windows.begin(), windows.end(), w), windows.end());
-            windows.push_back(w);
-            focused = w;
-            w->setFocused(true);
-            w->onTouch(e.x, e.y);
-            break;
+            if (p && p->contains(message.getX(), message.getY()))
+            {
+                mFocused = p;
+                p->setFocused(true);
+                TouchMessage msgNew = message;
+                msgNew.setSourcePid(pid);
+                MessageBus::publish(TOUCH_START_MESSAGE, msgNew);
+                return;
+            }
         }
     }
 }
 
 void Compositor::onTouchMove(const Event& e)
 {
-    if (focused)
-    {
-        focused->onDrag(e.x, e.y);
-    }
 }
 
 void Compositor::onTouchEnd(const Event& e)
@@ -143,7 +76,7 @@ void Compositor::onTouchEnd(const Event& e)
 
 void Compositor::onKill(const Event& e)
 {
-    for (auto* p : windows)
+    /*for (auto* p : mWindows)
     {
 
         if (p == nullptr)
@@ -189,14 +122,14 @@ void Compositor::onKill(const Event& e)
                 }
             }
         }
-    }
+    }*/
 }
 
-Compositor* Compositor::getInstance()
+Compositor* Compositor::GetInstance()
 {
-    if (!instance)
+    if (!Instance)
     {
-        instance = new Compositor();
+        Instance = new Compositor();
     }
-    return instance;
+    return Instance;
 }

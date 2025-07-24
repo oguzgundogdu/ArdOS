@@ -1,13 +1,13 @@
 #include "ardos/drivers/input.h"
 #include <ardos/bus/message_bus.h>
-#include <ardos/drivers/bus/touch_message.h>
+#include <ardos/bus/touch_message.h>
 #include <ardos/kernel/input.h>
 #include <ardos/kernel/power.h>
 #include <ardos/kernel/time.h>
+#include <ctime>
 
 using namespace ardos::bus;
 using namespace ardos::kernel;
-using namespace ardos::drivers::bus;
 
 InputManager::InputManager()
 {

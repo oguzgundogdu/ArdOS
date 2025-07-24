@@ -19,11 +19,11 @@ using namespace ardos::bus;
 
 void Compositor::addWindow(Window* window, uint32_t pid)
 {
-    mWindows[pid].push_back(window);
+    /*mWindows[pid].push_back(window);
     ardos::kernel::state.active_panel_id = (uintptr_t)window;
     mFocused = window;
     window->setFocused(true);
-    renderWindow(window, pid);
+    renderWindow(window, pid);*/
 }
 
 void Compositor::createWindow(uint32_t pid, const char* title, int16_t w, int16_t h)
@@ -105,7 +105,7 @@ void Compositor::renderWindow(Window* window, uint32_t pid)
 
 Window* Compositor::getWindowById(uintptr_t id)
 {
-    for (auto& [pid, windows] : mWindows)
+    /*for (auto& [pid, windows] : mWindows)
     {
         for (auto* window : windows)
         {
@@ -114,32 +114,32 @@ Window* Compositor::getWindowById(uintptr_t id)
                 return window;
             }
         }
-    }
+    }*/
     return nullptr;
 }
 
 void Compositor::arrangeWindowStack()
 {
-    for (auto& [pid, windows] : mWindows)
-    {
-        for (size_t i = 0; i < windows.size(); i++)
-        {
-            Window* p = windows[i];
-            if (p != nullptr)
-            {
-                if (i == windows.size() - 1)
-                {
-                    p->setFocused(true);
-                    // focused = p;
-                    ardos::kernel::state.active_panel_id = (uintptr_t)p;
-                }
-                else
-                {
-                    p->setFocused(false);
-                }
-            }
-        }
-    }
+    /* for (auto& [pid, windows] : mWindows)
+     {
+         for (size_t i = 0; i < windows.size(); i++)
+         {
+             Window* p = windows[i];
+             if (p != nullptr)
+             {
+                 if (i == windows.size() - 1)
+                 {
+                     p->setFocused(true);
+                     // focused = p;
+                     ardos::kernel::state.active_panel_id = (uintptr_t)p;
+                 }
+                 else
+                 {
+                     p->setFocused(false);
+                 }
+             }
+         }
+     }*/
 }
 
 void Compositor::dragWindow(Window* window, int16_t tx, int16_t ty, uint32_t pid)

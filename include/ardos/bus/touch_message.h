@@ -1,11 +1,13 @@
 #pragma once
 
 // Adjust the include path to the correct relative location
-#include "../../bus/message_bus.h"
+#include "message_bus.h"
 
-using namespace ardos::bus;
+#define TOUCH_START_MESSAGE "touch/start"
+#define TOUCH_MOVE_MESSAGE "touch/move"
+#define TOUCH_END_MESSAGE "touch/end"
 
-namespace ardos::drivers::bus
+namespace ardos::bus
 {
 
     class TouchMessage : public Message
@@ -37,4 +39,4 @@ namespace ardos::drivers::bus
         long last_touch_time;
     };
 
-} // namespace ardos::drivers::bus
+} // namespace ardos::bus

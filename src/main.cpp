@@ -1,4 +1,5 @@
 #include "ardos/kernel/kernel.h"
+#include <Arduino.h>
 
 using namespace ardos::kernel;
 

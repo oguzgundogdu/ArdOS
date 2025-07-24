@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ardos/bus/message_bus.h"
+#include <ctime>
 
 class TimeManager : public ardos::bus::MessageListener
 {

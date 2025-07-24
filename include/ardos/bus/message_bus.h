@@ -36,6 +36,11 @@ namespace ardos::bus
             return source_pid;
         }
 
+        void setSourcePid(uint32_t pid)
+        {
+            source_pid = pid;
+        }
+
       private:
         MessageType type;
         uint32_t source_pid;

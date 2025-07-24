@@ -56,10 +56,6 @@ void Compositor::renderContextMenu(ContextMenu* contextMenu, uint32_t pid)
 
 ContextMenu* Compositor::getContextMenuById(uintptr_t id)
 {
-    Serial.println("Getting ContextMenu by ID in Compositor");
-    for (auto& pair : mWindows)
-    {
-    }
-    Serial.println("ContextMenu not found");
+
     return nullptr;
 }

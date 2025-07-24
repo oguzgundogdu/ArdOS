@@ -1,4 +1,5 @@
 #include "ardos/user/event.h"
+#include <algorithm>
 
 using namespace ardos::user::event;
 

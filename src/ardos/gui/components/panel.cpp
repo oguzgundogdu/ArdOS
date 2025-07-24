@@ -27,7 +27,7 @@ bool Panel::contains(int px, int py)
 void Panel::onTouch(void* data)
 {
     if (mCallback)
-        mCallback(data);
+        mCallback();
 }
 
 bool Panel::intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh)
