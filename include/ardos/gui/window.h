@@ -26,28 +26,16 @@ class Window : public Container
 {
   public:
     Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title);
-
-    void onTouch(int16_t tx, int16_t ty) override;
-    void onDrag(int16_t tx, int16_t ty);
-    const char* getTitle() const
+    void onTouch(void* data = nullptr) override;
+    const char* GetTitle() const
     {
-        return title;
+        return mTitle;
     }
-    void setTitle(const char* newTitle)
+    void SetTitle(const char* newTitle)
     {
-        title = newTitle;
-    }
-    bool isDragging() const
-    {
-        return is_dragging;
-    }
-    void setDragging(bool dragging)
-    {
-        is_dragging = dragging;
+        mTitle = newTitle;
     }
 
   private:
-    const char* title;
-    bool is_visible = true;
-    bool is_dragging = false;
+    const char* mTitle;
 };

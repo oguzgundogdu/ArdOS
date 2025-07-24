@@ -2,6 +2,8 @@
 
 #include "ardos/bus/message_bus.h"
 
+#define SET_CURSOR_MESSAGE "display/setCursor"
+
 using namespace ardos::bus;
 
 namespace ardos::kernel::bus

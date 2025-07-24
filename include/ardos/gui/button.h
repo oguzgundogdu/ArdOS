@@ -11,8 +11,9 @@ class Button : public Panel
 
     Button(int16_t x, int16_t y, int16_t w, int16_t h, const std::string& label);
 
-    void render() override;
+  protected:
+    void onTouch(void* data) override;
 
   private:
-    std::string label;
+    std::string mLabel;
 };

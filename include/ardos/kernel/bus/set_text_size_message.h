@@ -2,6 +2,8 @@
 
 #include "ardos/bus/message_bus.h"
 
+#define SET_TEXT_SIZE_MESSAGE "display/setTextSize"
+
 using namespace ardos::bus;
 
 namespace ardos::kernel::bus

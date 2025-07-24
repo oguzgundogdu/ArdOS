@@ -7,15 +7,15 @@ class Container : public Panel
     Container(int x, int y, int width, int height);
     ~Container() override;
 
-    void onTouch(int16_t tx, int16_t ty) override;
+    void onTouch(void* data = nullptr) override;
 
-    void addChild(Panel* panel);
-    void removeChild(Panel* panel);
-    const std::vector<Panel*>& getChildren() const
+    void AddChild(Panel* panel);
+    void RemoveChild(Panel* panel);
+    const std::vector<Panel*>& GetChildren() const
     {
-        return *children;
+        return *mChildren;
     }
 
   private:
-    std::vector<Panel*>* children = new std::vector<Panel*>();
+    std::vector<Panel*>* mChildren = new std::vector<Panel*>();
 };

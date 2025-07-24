@@ -4,6 +4,8 @@
 
 using namespace ardos::bus;
 
+#define SET_TEXT_COLOR_MESSAGE "display/setTextColor"
+
 namespace ardos::kernel::bus
 {
     class SetTextColorMessage : public Message

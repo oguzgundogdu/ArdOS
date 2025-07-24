@@ -1,12 +1,5 @@
 #pragma once
 
-#define DRAW_LINE_MESSAGE "display/drawLine"
-#define DRAW_RECT_MESSAGE "display/drawRect"
-#define FILL_RECT_MESSAGE "display/fillRect"
-#define PRINT_MESSAGE "display/print"
-#define SET_CURSOR_MESSAGE "display/setCursor"
-#define SET_TEXT_COLOR_MESSAGE "display/setTextColor"
-#define SET_TEXT_SIZE_MESSAGE "display/setTextSize"
 #define DRAW_PIXEL_MESSAGE "display/drawPixel"
 
 #define DEFAULT_BRIGHTNESS 255   // Default brightness for the TFT backlight

@@ -2,6 +2,8 @@
 
 #include "ardos/bus/message_bus.h"
 
+#define PRINT_MESSAGE "display/print"
+
 using namespace ardos::bus;
 
 namespace ardos::kernel::bus

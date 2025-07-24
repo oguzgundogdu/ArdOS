@@ -22,25 +22,3 @@ void ContextMenu::addItem(const std::string& label, Callback callback)
     Serial.println("Item added to ContextMenu");
 }
 
-void ContextMenu::render()
-{
-    Serial.println("Rendering ContextMenu");
-    Screen* screen = Screen::getInstance();
-
-    if (is_visible)
-    {
-        screen->fillRect(x, y, width, height, ILI9341_WHITE);
-        screen->drawRect(x, y, width, height, ILI9341_BLACK);
-        screen->setTextSize(1);
-        auto children = getChildren();
-        for (size_t i = 0; i < children.size(); ++i)
-        {
-            children[i]->render();
-        }
-    }
-    else
-    {
-        screen->fillRect(x, y, width, height, ILI9341_BLACK);
-    }
-    Serial.println("ContextMenu rendered");
-}

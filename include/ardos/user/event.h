@@ -4,11 +4,10 @@
 namespace ardos::user::event
 {
 
-    enum class EventType
+    enum class EventType : std::uint8_t
     {
-        TouchStart,
-        TouchMove,
-        TouchEnd
+        Touch,
+        RenderPanel
     };
 
     struct Event

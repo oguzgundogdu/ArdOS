@@ -2,6 +2,8 @@
 
 #include "ardos/bus/message_bus.h"
 
+#define DRAW_LINE_MESSAGE "display/drawLine"
+
 using namespace ardos::bus;
 
 namespace ardos::kernel::bus

@@ -2,6 +2,8 @@
 
 #include "ardos/bus/message_bus.h"
 
+#define FILL_RECT_MESSAGE "display/fillRect"
+
 using namespace ardos::bus;
 
 namespace ardos::kernel::bus

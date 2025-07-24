@@ -1,25 +1,29 @@
 #include "ardos/gui/window.h"
+#include "ardos/bus/message_bus.h"
 #include "ardos/gui/compositor.h"
 #include "ardos/kernel/bus/draw_line_message.h"
 #include "ardos/kernel/bus/draw_rect_message.h"
 #include "ardos/kernel/bus/fill_rect_message.h"
-#include "ardos/kernel/bus/message_bus.h"
 #include "ardos/kernel/bus/print_message.h"
 #include "ardos/kernel/bus/set_cursor_message.h"
 #include "ardos/kernel/bus/set_text_color_message.h"
 #include "ardos/kernel/bus/set_text_size_message.h"
 #include "ardos/kernel/config.h"
 #include "ardos/kernel/state.h"
+#include <cstdint>
 
-void Compositor::addWindow(uint32_t pid, Window* window)
+using namespace ardos::gui;
+using namespace ardos::kernel;
+using namespace ardos::kernel::bus;
+using namespace ardos::bus;
+
+void Compositor::addWindow(Window* window, uint32_t pid)
 {
-    windows[pid].push_back(window);
-    Serial.print("Window added: ");
-    Serial.println((uintptr_t)window);
+    mWindows[pid].push_back(window);
     ardos::kernel::state.active_panel_id = (uintptr_t)window;
-    focused = window;
+    mFocused = window;
     window->setFocused(true);
-    renderWindow(window);
+    renderWindow(window, pid);
 }
 
 void Compositor::createWindow(uint32_t pid, const char* title, int16_t w, int16_t h)
@@ -49,55 +53,66 @@ void Compositor::createWindow(uint32_t pid, const char* title, int16_t w, int16_
     }
 
     Window* window = new Window(targetX, targetY, w, h, title);
-    this->addWindow(pid, window);
+    this->addWindow(window, pid);
 }
 
-void Compositor::renderWindow(Window* window)
+void Compositor::renderWindow(Window* window, uint32_t pid)
 {
     if (window)
     {
-        MessageBus::publish(FILL_RECT_MESSAGE, FillRectMessage(window->getX(), window->getY(), window->getWidth(),
-                                                               window->getHeight(), WINDOW_BG_COLOR, 0));
+        MessageBus::publish(FILL_RECT_MESSAGE,
+                            FillRectMessage(window->getX(), window->getY(), window->getWidth(), window->getHeight(),
+                                            WINDOW_BG_COLOR, pid, MessageType::Display));
 
         MessageBus::publish(DRAW_RECT_MESSAGE,
                             DrawRectMessage(window->getX(), window->getY(), window->getWidth(), window->getHeight(),
-                                            window->isFocused() ? WINDOW_FOCUS_COLOR : WINDOW_BORDER_COLOR, 0));
+                                            window->isFocused() ? WINDOW_FOCUS_COLOR : WINDOW_BORDER_COLOR, pid,
+                                            MessageType::Display));
 
         // title bar
-        MessageBus::publish(FILL_RECT_MESSAGE, FillRectMessage(window->getX(), window->getY(), window->getWidth(),
-                                                               WINDOW_TITLEBAR_HEIGHT, WINDOW_TITLEBAR_BG_COLOR, 0));
-        MessageBus::publish(SET_CURSOR_MESSAGE, SetCursorMessage(window->getX() + 2, window->getY() + 2, 0));
-        MessageBus::publish(SET_TEXT_COLOR_MESSAGE, SetTextColorMessage(WINDOW_TITLEBAR_TEXT_COLOR, 0));
-        MessageBus::publish(SET_TEXT_SIZE_MESSAGE, SetTextSizeMessage(WINDOW_TITLEBAR_TEXT_SIZE, 0));
-        MessageBus::publish(PRINT_MESSAGE, PrintMessage(window->getTitle(), 0));
+        MessageBus::publish(FILL_RECT_MESSAGE,
+                            FillRectMessage(window->getX(), window->getY(), window->getWidth(), WINDOW_TITLEBAR_HEIGHT,
+                                            WINDOW_TITLEBAR_BG_COLOR, pid, MessageType::Display));
+        MessageBus::publish(SET_CURSOR_MESSAGE,
+                            SetCursorMessage(window->getX() + 2, window->getY() + 2, pid, MessageType::Display));
+        MessageBus::publish(SET_TEXT_COLOR_MESSAGE,
+                            SetTextColorMessage(WINDOW_TITLEBAR_TEXT_COLOR, pid, MessageType::Display));
+        MessageBus::publish(SET_TEXT_SIZE_MESSAGE,
+                            SetTextSizeMessage(WINDOW_TITLEBAR_TEXT_SIZE, pid, MessageType::Display));
+        MessageBus::publish(PRINT_MESSAGE, PrintMessage(window->GetTitle(), pid, MessageType::Display));
 
         int16_t closeBoxX = window->getX() + window->getWidth() - WINDOW_CLOSE_BOX_X_MARGIN;
         int16_t closeBoxY = window->getY() + WINDOW_CLOSE_BOX_Y_MARGIN;
 
-        MessageBus::publish(FILL_RECT_MESSAGE, FillRectMessage(closeBoxX, closeBoxY, WINDOW_CLOSE_BOX_SIZE,
-                                                               WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BG_COLOR, 0));
-        MessageBus::publish(DRAW_RECT_MESSAGE, DrawRectMessage(closeBoxX, closeBoxY, WINDOW_CLOSE_BOX_SIZE,
-                                                               WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BORDER_COLOR, 0));
-        MessageBus::publish(DRAW_LINE_MESSAGE,
-                            DrawLineMessage(closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET,
-                                            closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
-                                            closeBoxX + WINDOW_CLOSE_BOX_X_PADDING,
-                                            closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING, WINDOW_CLOSE_TEXT_COLOR, 0));
-        MessageBus::publish(DRAW_LINE_MESSAGE,
-                            DrawLineMessage(closeBoxX + WINDOW_CLOSE_BOX_X_PADDING,
-                                            closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
-                                            closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET,
-                                            closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING, WINDOW_CLOSE_TEXT_COLOR, 0));
+        MessageBus::publish(FILL_RECT_MESSAGE,
+                            FillRectMessage(closeBoxX, closeBoxY, WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BOX_SIZE,
+                                            WINDOW_CLOSE_BG_COLOR, pid, MessageType::Display));
+        MessageBus::publish(DRAW_RECT_MESSAGE,
+                            DrawRectMessage(closeBoxX, closeBoxY, WINDOW_CLOSE_BOX_SIZE, WINDOW_CLOSE_BOX_SIZE,
+                                            WINDOW_CLOSE_BORDER_COLOR, pid, MessageType::Display));
+        MessageBus::publish(DRAW_LINE_MESSAGE, DrawLineMessage(closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET,
+                                                               closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
+                                                               closeBoxX + WINDOW_CLOSE_BOX_X_PADDING,
+                                                               closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING,
+                                                               WINDOW_CLOSE_TEXT_COLOR, pid, MessageType::Display));
+        MessageBus::publish(DRAW_LINE_MESSAGE, DrawLineMessage(closeBoxX + WINDOW_CLOSE_BOX_X_PADDING,
+                                                               closeBoxY + WINDOW_CLOSE_BOX_Y_OFFSET,
+                                                               closeBoxX + WINDOW_CLOSE_BOX_X_OFFSET,
+                                                               closeBoxY + WINDOW_CLOSE_BOX_Y_PADDING,
+                                                               WINDOW_CLOSE_TEXT_COLOR, pid, MessageType::Display));
     }
 }
 
 Window* Compositor::getWindowById(uintptr_t id)
 {
-    for (auto* p : windows)
+    for (auto& [pid, windows] : mWindows)
     {
-        if ((uintptr_t)p == id)
+        for (auto* window : windows)
         {
-            return p;
+            if ((uintptr_t)window == id)
+            {
+                return window;
+            }
         }
     }
     return nullptr;
@@ -105,29 +120,30 @@ Window* Compositor::getWindowById(uintptr_t id)
 
 void Compositor::arrangeWindowStack()
 {
-    for (int i = 0; i < windows.size(); i++)
+    for (auto& [pid, windows] : mWindows)
     {
-        Window* p = windows[i];
-        if (p != nullptr)
+        for (size_t i = 0; i < windows.size(); i++)
         {
-            if (i == windows.size() - 1)
+            Window* p = windows[i];
+            if (p != nullptr)
             {
-                windows[i]->setFocused(true);
-                focused = p;
-                ardos::kernel::state.active_panel_id = (uintptr_t)p;
-            }
-            else
-            {
-                windows[i]->setFocused(false);
+                if (i == windows.size() - 1)
+                {
+                    p->setFocused(true);
+                    // focused = p;
+                    ardos::kernel::state.active_panel_id = (uintptr_t)p;
+                }
+                else
+                {
+                    p->setFocused(false);
+                }
             }
         }
     }
 }
 
-void Compositor::dragWindow(Window* window, int16_t tx, int16_t ty)
+void Compositor::dragWindow(Window* window, int16_t tx, int16_t ty, uint32_t pid)
 {
-    if (!window->isDragging())
-        return;
 
     int16_t new_x = tx - window->getX();
     int16_t new_y = ty - window->getY();
@@ -156,8 +172,9 @@ void Compositor::dragWindow(Window* window, int16_t tx, int16_t ty)
         if (new_y + window->getHeight() > SCREEN_HEIGHT - MENU_HEIGHT)
             new_y = SCREEN_HEIGHT - MENU_HEIGHT - window->getHeight();
         // Clear previous position
-        MessageBus::publish(FILL_RECT_MESSAGE, FillRectMessage(window->getX(), window->getY(), window->getWidth(),
-                                                               window->getHeight(), ILI9341_BLACK, 0));
+        MessageBus::publish(FILL_RECT_MESSAGE,
+                            FillRectMessage(window->getX(), window->getY(), window->getWidth(), window->getHeight(),
+                                            ILI9341_BLACK, pid, MessageType::Display));
 
         // Set new position
         // prev_x = window->getX();
@@ -166,11 +183,11 @@ void Compositor::dragWindow(Window* window, int16_t tx, int16_t ty)
         window->setPosition(new_x, new_y);
 
         // Redraw
-        renderWindow(window);
+        renderWindow(window, pid);
     }
 }
 
-void Compositor::touchWindow(Window* window, int16_t tx, int16_t ty)
+void Compositor::touchWindow(Window* window, int16_t tx, int16_t ty, uint32_t pid)
 {
     if (window->contains(tx, ty))
     {
@@ -182,7 +199,6 @@ void Compositor::touchWindow(Window* window, int16_t tx, int16_t ty)
         {
             // is_dragging = false;
             // ardos::kernel::EventManager::dispatch(Event{EventType::Kill, 0, 0, (uintptr_t)this});
-            Serial.println("Window is closing");
             return;
         }
 
@@ -191,12 +207,7 @@ void Compositor::touchWindow(Window* window, int16_t tx, int16_t ty)
             /*drag_offset_x = tx - window->getX();
             drag_offset_y = ty - window->getY();
             is_dragging = true;*/
-            dragWindow(window, tx, ty);
+            dragWindow(window, tx, ty, pid);
         }
-
-        Serial.print("Window touched at: ");
-        Serial.print(tx);
-        Serial.print(", ");
-        Serial.println(ty);
     }
 }
