@@ -40,7 +40,7 @@ void MenuBar::Init()
         EventType::RenderMenuBar,
         0,
         0,
-        getId(),
+        (uintptr_t)this,
         nullptr,
     });
 

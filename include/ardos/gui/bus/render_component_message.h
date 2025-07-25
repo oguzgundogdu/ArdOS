@@ -16,17 +16,17 @@ namespace ardos::gui::bus
     class RenderComponentMessage : public Message
     {
       public:
-        RenderComponentMessage(uint32_t component_id, uint32_t source_pid)
-            : Message{MessageType::Render, source_pid}, component_id(component_id)
+        RenderComponentMessage(void* component, uint32_t source_pid)
+            : Message{MessageType::Render, source_pid}, mComponent(component)
         {
         }
 
-        uint32_t getComponentId() const
+        void* getComponent() const
         {
-            return component_id;
+            return mComponent;
         }
 
       private:
-        uint32_t component_id;
+        void* mComponent = nullptr; // Pointer to the component to be rendered
     };
 } // namespace ardos::gui::bus

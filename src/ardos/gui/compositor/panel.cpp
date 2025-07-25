@@ -8,16 +8,6 @@
 using namespace ardos::bus;
 using namespace ardos::kernel::bus;
 
-void Compositor::addPanel(Panel* panel, uint32_t pid)
-{
-    if (panel == nullptr)
-    {
-        return;
-    }
-
-    renderPanel(panel, pid);
-}
-
 void Compositor::renderPanel(Panel* panel, uint32_t pid)
 {
     if (panel == nullptr)

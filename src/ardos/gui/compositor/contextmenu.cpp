@@ -8,20 +8,6 @@
 using namespace ardos::bus;
 using namespace ardos::kernel::bus;
 
-void Compositor::addContextMenu(ContextMenu* contextMenu, uint32_t pid)
-{
-    Serial.println("Adding ContextMenu to Compositor");
-    if (contextMenu)
-    {
-        // mWindows[pid].push_back(contextMenu);
-        Serial.println("ContextMenu added successfully");
-    }
-    else
-    {
-        Serial.println("Failed to add ContextMenu: null pointer");
-    }
-}
-
 void Compositor::renderContextMenu(ContextMenu* contextMenu, uint32_t pid)
 {
     Serial.println("Rendering ContextMenu in Compositor");
@@ -52,10 +38,4 @@ void Compositor::renderContextMenu(ContextMenu* contextMenu, uint32_t pid)
                             FillRectMessage(contextMenu->getX(), contextMenu->getY(), contextMenu->getWidth(),
                                             contextMenu->getHeight(), 0x0, pid, MessageType::Display));
     }
-}
-
-ContextMenu* Compositor::getContextMenuById(uintptr_t id)
-{
-
-    return nullptr;
 }

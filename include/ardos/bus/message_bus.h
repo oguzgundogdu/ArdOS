@@ -61,6 +61,7 @@ namespace ardos::bus
         using Callback = std::function<void(const Message&)>;
 
         static void subscribe(const std::string& topic, MessageListener* listener);
+        static void unsubscribe(const std::string& topic, MessageListener* listener);
         static void publish(const std::string& topic, const Message& message);
 
       private:

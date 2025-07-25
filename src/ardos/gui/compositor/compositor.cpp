@@ -1,16 +1,18 @@
 #include "ardos/bus/message_bus.h"
+#include "ardos/gui/container.h"
+#include "ardos/gui/contextmenu.h"
+#include "ardos/gui/menubar.h"
 #include <ardos/bus/touch_message.h>
+#include <ardos/gui/bus/render_component_message.h>
 #include <ardos/gui/compositor.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
+#include <cstdint>
 
 using namespace ardos::bus;
+using namespace ardos::gui::bus;
 
 Compositor::Compositor()
-{
-}
-
-void Compositor::Render()
 {
 }
 
@@ -23,11 +25,27 @@ void Compositor::start()
     MessageBus::subscribe(TOUCH_END_MESSAGE, this);
 
     // Register for window messages
-    MessageBus::subscribe("render/window", this);
+    MessageBus::subscribe(RENDER_PANEL_MESSAGE, this);
+    MessageBus::subscribe(RENDER_WINDOW_MESSAGE, this);
+    MessageBus::subscribe(RENDER_CONTAINER_MESSAGE, this);
+    MessageBus::subscribe(RENDER_MENUBAR_MESSAGE, this);
+    MessageBus::subscribe(RENDER_CONTEXTMENU_MESSAGE, this);
+    MessageBus::subscribe(RENDER_BUTTON_MESSAGE, this);
 }
 
 void Compositor::stop()
 {
+    // Unsubscribe from messages
+    MessageBus::unsubscribe(TOUCH_START_MESSAGE, this);
+    MessageBus::unsubscribe(TOUCH_MOVE_MESSAGE, this);
+    MessageBus::unsubscribe(TOUCH_END_MESSAGE, this);
+
+    MessageBus::unsubscribe(RENDER_PANEL_MESSAGE, this);
+    MessageBus::unsubscribe(RENDER_WINDOW_MESSAGE, this);
+    MessageBus::unsubscribe(RENDER_CONTAINER_MESSAGE, this);
+    MessageBus::unsubscribe(RENDER_MENUBAR_MESSAGE, this);
+    MessageBus::unsubscribe(RENDER_CONTEXTMENU_MESSAGE, this);
+    MessageBus::unsubscribe(RENDER_BUTTON_MESSAGE, this);
 }
 
 void Compositor::run()
@@ -36,12 +54,57 @@ void Compositor::run()
 
 void Compositor::onMessage(const std::string& topic, const Message& message)
 {
-    if (topic == "render/window")
+
+    if (message.getType() == MessageType::Render)
     {
+        RenderComponentMessage renderMessage = static_cast<const RenderComponentMessage&>(message);
+        addPanel(renderMessage.getComponent(), message.getSourcePid());
+
+        if (topic == RENDER_PANEL_MESSAGE)
+        {
+            Panel* obj = static_cast<Panel*>(renderMessage.getComponent());
+            renderPanel(obj, message.getSourcePid());
+        }
+        else if (topic == RENDER_WINDOW_MESSAGE)
+        {
+            Window* obj = static_cast<Window*>(renderMessage.getComponent());
+            renderWindow(obj, message.getSourcePid());
+        }
+        else if (topic == RENDER_CONTAINER_MESSAGE)
+        {
+            Container* obj = static_cast<Container*>(renderMessage.getComponent());
+            renderContainer(obj, message.getSourcePid());
+        }
+        else if (topic == RENDER_MENUBAR_MESSAGE)
+        {
+            MenuBar* obj = static_cast<MenuBar*>(renderMessage.getComponent());
+            renderMenuBar(obj, message.getSourcePid());
+        }
+        else if (topic == RENDER_CONTEXTMENU_MESSAGE)
+        {
+            ContextMenu* obj = static_cast<ContextMenu*>(renderMessage.getComponent());
+            renderContextMenu(obj, message.getSourcePid());
+        }
+        else if (topic == RENDER_BUTTON_MESSAGE)
+        {
+            Button* obj = static_cast<Button*>(renderMessage.getComponent());
+            renderButton(obj, message.getSourcePid());
+        }
     }
-    else if (topic == TOUCH_START_MESSAGE)
+    else if (message.getType() == MessageType::Input)
     {
-        onTouchStart(static_cast<const TouchMessage&>(message));
+        if (topic == TOUCH_START_MESSAGE)
+        {
+            onTouchStart(static_cast<const TouchMessage&>(message));
+        }
+        else if (topic == TOUCH_MOVE_MESSAGE)
+        {
+            onTouchMove(static_cast<const TouchMessage&>(message));
+        }
+        else if (topic == TOUCH_END_MESSAGE)
+        {
+            onTouchEnd(static_cast<const TouchMessage&>(message));
+        }
     }
 }
 
@@ -65,11 +128,11 @@ void Compositor::onTouchStart(const TouchMessage& message)
     }
 }
 
-void Compositor::onTouchMove(const Event& e)
+void Compositor::onTouchMove(const TouchMessage& message)
 {
 }
 
-void Compositor::onTouchEnd(const Event& e)
+void Compositor::onTouchEnd(const TouchMessage& message)
 {
 }
 
@@ -122,6 +185,30 @@ void Compositor::onKill(const Event& e)
             }
         }
     }*/
+}
+
+void Compositor::addPanel(void* panel, uint32_t pid)
+{
+    Panel* p = static_cast<Panel*>(panel);
+    if (panel == nullptr)
+    {
+        return;
+    }
+
+    if (mPanels.find(pid) == mPanels.end())
+    {
+        mPanels[pid] = std::vector<Panel*>();
+    }
+
+    for (Panel* existingPanel : mPanels[pid])
+    {
+        if ((uintptr_t)existingPanel == (uintptr_t)p)
+        {
+            return;
+        }
+    }
+
+    mPanels[pid].push_back(p);
 }
 
 Compositor* Compositor::GetInstance()

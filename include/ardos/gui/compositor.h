@@ -18,7 +18,6 @@ class Compositor : public Application
 {
   public:
     Compositor();
-    void Render();
     void onMessage(const std::string& topic, const Message& message) override;
     void run() override;
     void start() override;
@@ -40,34 +39,26 @@ class Compositor : public Application
     void arrangeWindowStack();
 
     // Panel
-    void addPanel(Panel* panel, uint32_t pid);
+    void addPanel(void* panel, uint32_t pid);
     void renderPanel(Panel* panel, uint32_t pid);
     Panel* getPanelById(uintptr_t id);
 
     // Container
-    void addContainer(Container* container, uint32_t pid);
     void renderContainer(Container* container, uint32_t pid);
-    Container* getContainerById(uintptr_t id);
 
     // Menubar
-    void addMenuBar(MenuBar* menuBar, uint32_t pid);
     void renderMenuBar(MenuBar* menuBar, uint32_t pid);
-    MenuBar* getMenuBarById(uintptr_t id);
 
     // Context Menu
-    void addContextMenu(ContextMenu* contextMenu, uint32_t pid);
     void renderContextMenu(ContextMenu* contextMenu, uint32_t pid);
-    ContextMenu* getContextMenuById(uintptr_t id);
 
     // Button
-    void addButton(Button* button, uint32_t pid);
     void renderButton(Button* button, uint32_t pid);
-    Button* getButtonById(uintptr_t id);
 
     // Event
     void onTouchStart(const TouchMessage& message);
-    void onTouchMove(const Event& e);
-    void onTouchEnd(const Event& e);
+    void onTouchMove(const TouchMessage& message);
+    void onTouchEnd(const TouchMessage& message);
     void onKill(const Event& e);
     static Compositor* Instance;
 };

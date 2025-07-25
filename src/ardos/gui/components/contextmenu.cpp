@@ -26,7 +26,7 @@ void ContextMenu::Init()
         EventType::RenderContextMenu,
         0,
         0,
-        getId(),
+        (uintptr_t)this,
         nullptr,
     });
 

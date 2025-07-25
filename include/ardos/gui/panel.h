@@ -9,8 +9,6 @@ using namespace ardos::gui::event;
 
 class Panel : public ComponentEventListener
 {
-  private:
-    uint32_t id; // Unique identifier for the panel
   protected:
     using Callback = std::function<void()>;
     int x, y, width, height;
@@ -29,18 +27,6 @@ class Panel : public ComponentEventListener
     virtual void Init();
 
     bool intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh);
-
-    uint32_t getId() const
-    {
-        return id;
-    }
-    void setId(uint32_t newId)
-    {
-        if (id > 0)
-            return;
-
-        id = newId;
-    }
 
     int getX() const
     {

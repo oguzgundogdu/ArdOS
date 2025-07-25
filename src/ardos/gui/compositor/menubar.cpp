@@ -9,10 +9,6 @@
 using namespace ardos::bus;
 using namespace ardos::kernel::bus;
 
-void Compositor::addMenuBar(MenuBar* menuBar, uint32_t pid)
-{
-}
-
 void Compositor::renderMenuBar(MenuBar* menuBar, uint32_t pid)
 {
     if (!menuBar)
@@ -29,10 +25,4 @@ void Compositor::renderMenuBar(MenuBar* menuBar, uint32_t pid)
 
         MessageBus::publish(SET_TEXT_SIZE_MESSAGE, SetTextSizeMessage(1, pid, MessageType::Display));
     }
-}
-
-MenuBar* Compositor::getMenuBarById(uintptr_t id)
-{
-
-    return nullptr;
 }

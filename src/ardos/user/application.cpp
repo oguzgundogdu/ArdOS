@@ -34,23 +34,22 @@ void Application::OnEvent(const Event& e)
     switch (e.type)
     {
     case EventType::RenderPanel:
-        MessageBus::publish(RENDER_PANEL_MESSAGE, gui::bus::RenderComponentMessage(e.elementId, context->getPid()));
+        MessageBus::publish(RENDER_PANEL_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
         break;
     case EventType::RenderContainer:
-        MessageBus::publish(RENDER_CONTAINER_MESSAGE, gui::bus::RenderComponentMessage(e.elementId, context->getPid()));
+        MessageBus::publish(RENDER_CONTAINER_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
         break;
     case EventType::RenderWindow:
-        MessageBus::publish(RENDER_WINDOW_MESSAGE, gui::bus::RenderComponentMessage(e.elementId, context->getPid()));
+        MessageBus::publish(RENDER_WINDOW_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
         break;
     case EventType::RenderButton:
-        MessageBus::publish(RENDER_BUTTON_MESSAGE, gui::bus::RenderComponentMessage(e.elementId, context->getPid()));
+        MessageBus::publish(RENDER_BUTTON_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
         break;
     case EventType::RenderMenuBar:
-        MessageBus::publish(RENDER_MENUBAR_MESSAGE, gui::bus::RenderComponentMessage(e.elementId, context->getPid()));
+        MessageBus::publish(RENDER_MENUBAR_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
         break;
     case EventType::RenderContextMenu:
-        MessageBus::publish(RENDER_CONTEXTMENU_MESSAGE,
-                            gui::bus::RenderComponentMessage(e.elementId, context->getPid()));
+        MessageBus::publish(RENDER_CONTEXTMENU_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
         break;
     default:
         break;

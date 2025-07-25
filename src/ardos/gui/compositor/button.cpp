@@ -6,10 +6,6 @@
 using namespace ardos::bus;
 using namespace ardos::kernel::bus;
 
-void Compositor::addButton(Button* button, uint32_t pid)
-{
-}
-
 void Compositor::renderButton(Button* button, uint32_t pid)
 {
     if (button)
@@ -24,10 +20,4 @@ void Compositor::renderButton(Button* button, uint32_t pid)
             MessageBus::publish(PRINT_MESSAGE, PrintMessage(button->GetLabel().c_str(), pid, MessageType::Display));
         }
     }
-}
-
-Button* Compositor::getButtonById(uintptr_t id)
-{
-
-    return nullptr;
 }
