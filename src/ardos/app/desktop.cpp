@@ -1,3 +1,4 @@
+#include "ardos/gui/menubar.h"
 #include <ardos/app/desktop.h>
 
 using namespace ardos::app;

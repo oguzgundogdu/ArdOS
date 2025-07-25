@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "ardos/bus/message_bus.h"
 #include <XPT2046_Touchscreen.h>
 #include <ardos/bus/touch_message.h>
@@ -32,8 +33,8 @@ namespace ardos::drivers
             Serial.println("Failed to initialize touchscreen!");
             return;
         }
-        Serial.println("InputDriver initialized successfully");
         ts->setRotation(3); // landscape mode
+        Serial.println("InputDriver initialized successfully");
     }
 
     void InputDriver::stop()

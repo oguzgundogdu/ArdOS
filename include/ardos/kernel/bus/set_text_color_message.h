@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ardos/bus/message_bus.h"
+#include <cstdint>
 
 using namespace ardos::bus;
 
@@ -14,6 +15,11 @@ namespace ardos::kernel::bus
         SetTextColorMessage(uint32_t color, uint32_t source_pid, MessageType type)
             : Message{type, source_pid}, color(color)
         {
+        }
+
+        uint32_t getColor() const
+        {
+            return color;
         }
 
       private:

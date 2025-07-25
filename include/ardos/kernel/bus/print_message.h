@@ -15,6 +15,11 @@ namespace ardos::kernel::bus
         {
         }
 
+        const char* getText() const
+        {
+            return text;
+        }
+
       private:
         const char* text;
     };

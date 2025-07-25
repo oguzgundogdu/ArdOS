@@ -1,7 +1,11 @@
+#include "api/Common.h"
 #include "ardos/drivers/display.h"
 #include "ardos/drivers/input.h"
 #include "ardos/drivers/rtc.h"
+#include "ardos/drivers/serial.h"
+#include "ardos/kernel/display.h"
 #include "ardos/kernel/process.h"
+
 #include <ardos/kernel/kernel.h>
 
 using namespace ardos::kernel;
@@ -15,7 +19,10 @@ Kernel::Kernel()
 void Kernel::start()
 {
     initializeDrivers();
+    initializeManagers();
     initializeProcesses();
+
+    ProcessManager::initialize();
 }
 
 void Kernel::stop()
@@ -32,7 +39,12 @@ void Kernel::run()
     drivers::DisplayDriver* displayDriver = drivers::DisplayDriver::getInstance();
     displayDriver->run();
 
+    drivers::InputDriver* inputDriver = drivers::InputDriver::getInstance();
+    inputDriver->run();
+
     ProcessManager::tick();
+
+    delay(100);
 }
 
 Kernel* Kernel::getInstance()
@@ -49,6 +61,9 @@ void Kernel::initializeDrivers()
     drivers::RTC* rtcDriver = new drivers::RTC();
     rtcDriver->start();
 
+    drivers::SerialDriver* serialDriver = new drivers::SerialDriver();
+    serialDriver->start();
+
     drivers::DisplayDriver* displayDriver = drivers::DisplayDriver::getInstance();
     displayDriver->start();
 
@@ -56,9 +71,9 @@ void Kernel::initializeDrivers()
     inputDriver->start();
 }
 
-void Kernel::initializeProcesses()
+void Kernel::initializeManagers()
 {
-    ProcessManager::initialize();
+    DisplayManager* displayManager = DisplayManager::getInstance();
 }
 
 Kernel* Kernel::instance = nullptr; // Initialize the static instance pointer

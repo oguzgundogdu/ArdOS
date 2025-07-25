@@ -15,6 +15,16 @@ namespace ardos::kernel::bus
         {
         }
 
+        int getX() const
+        {
+            return x;
+        }
+
+        int getY() const
+        {
+            return y;
+        }
+
       private:
         int x;
         int y;

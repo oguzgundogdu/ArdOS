@@ -1,5 +1,6 @@
 
 
+#include "ardos/kernel/logger.h"
 #include "ardos/kernel/process.h"
 #include <algorithm>
 
@@ -53,10 +54,23 @@ namespace ardos::kernel
 
     void ProcessManager::initialize()
     {
+        Logger::Log(LogLevel::Info, "Initializing ProcessManager");
+
+        if (processes.empty())
+        {
+            Logger::Log(LogLevel::Warning, "No processes to initialize");
+            return;
+        }
+
         for (auto* proc : processes)
         {
+            Logger::Log(LogLevel::Info, "Initializing process: " + proc->getName());
+            setCurrentProcess(proc);
             proc->start();
+            Logger::Log(LogLevel::Info, "Process initialized: " + proc->getName());
         }
+
+        Logger::Log(LogLevel::Info, "ProcessManager initialized");
     }
 
     Process* ProcessManager::getCurrentProcess()

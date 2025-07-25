@@ -14,6 +14,7 @@ namespace ardos::kernel
       private:
         void initializeDrivers();
         void initializeProcesses();
+        void initializeManagers();
         static Kernel* instance;
 
         // Add other kernel-related methods and members as needed

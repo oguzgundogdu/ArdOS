@@ -1,4 +1,5 @@
 #include "ardos/bus/message_bus.h"
+#include "ardos/kernel/logger.h"
 #include "ardos/kernel/process.h"
 #include <ardos/bus/touch_message.h>
 #include <ardos/gui/bus/render_component_message.h>
@@ -6,8 +7,21 @@
 
 using namespace ardos::user;
 
+Application::Application() : ManagedProcess()
+{
+    // Initialize the event dispatcher
+    eventDispatcher = new event::EventDispatcher();
+    // Register this application as an event listener
+    eventDispatcher->registerListener(this);
+
+    MessageBus::subscribe(TOUCH_START_MESSAGE, this);
+    MessageBus::subscribe(TOUCH_MOVE_MESSAGE, this);
+    MessageBus::subscribe(TOUCH_END_MESSAGE, this);
+}
+
 void Application::onMessage(const std::string& topic, const Message& message)
 {
+    kernel::Logger::Log(kernel::LogLevel::Debug, "Application received message: " + topic);
     auto* context = kernel::ProcessManager::getCurrentProcess()->getContext();
     if (context->getPid() != message.getSourcePid())
     {
@@ -15,6 +29,7 @@ void Application::onMessage(const std::string& topic, const Message& message)
     }
     if (message.getType() == MessageType::Input)
     {
+        kernel::Logger::Log(kernel::LogLevel::Debug, "Application received input message: " + topic);
         const TouchMessage& inputMessage = static_cast<const TouchMessage&>(message);
 
         Event event;
@@ -54,4 +69,9 @@ void Application::OnEvent(const Event& e)
     default:
         break;
     }
+}
+
+event::EventDispatcher* Application::getEventDispatcher() const
+{
+    return eventDispatcher;
 }

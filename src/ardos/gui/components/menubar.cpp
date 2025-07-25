@@ -1,9 +1,12 @@
 
+#include "Arduino.h"
 #include <ardos/gui/menubar.h>
 
 MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
 {
-
+    setBackgroundColor(MENU_BG_COLOR);
+    setBorderColor(MENU_BG_COLOR);
+    setColor(MENU_TEXT_COLOR);
     mButton = new Button(0, 0, 50, MENU_HEIGHT, "Menu");
     mButton->setBackgroundColor(MENU_BG_COLOR);
     mButton->setBorderColor(MENU_BG_COLOR);
@@ -30,10 +33,12 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
             }
         });
     AddChild(mButton);
+    Serial.println("MenuBar initialized");
 }
 
 void MenuBar::Init()
 {
+    Serial.println("MenuBar Init called");
     auto* eventDispatcher = getEventDispatcher();
 
     eventDispatcher->dispatch(Event{
@@ -41,7 +46,7 @@ void MenuBar::Init()
         0,
         0,
         (uintptr_t)this,
-        nullptr,
+        this,
     });
 
     for (auto* child : GetChildren())
@@ -51,6 +56,8 @@ void MenuBar::Init()
             child->Init();
         }
     }
+
+    Serial.println("MenuBar Init completed");
 }
 
 /*void MenuBar::render()

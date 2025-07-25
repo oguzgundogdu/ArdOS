@@ -23,6 +23,6 @@ void Button::Init()
         0,
         0,
         (uintptr_t)this,
-        nullptr,
+        this,
     });
 }

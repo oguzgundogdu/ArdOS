@@ -15,6 +15,11 @@ namespace ardos::kernel::bus
         {
         }
 
+        uint32_t getSize() const
+        {
+            return size;
+        }
+
       private:
         uint32_t size;
     };

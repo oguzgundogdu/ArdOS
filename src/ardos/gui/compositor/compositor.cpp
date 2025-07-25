@@ -1,16 +1,28 @@
 #include "ardos/bus/message_bus.h"
+#include "ardos/drivers/display.h"
 #include "ardos/gui/container.h"
 #include "ardos/gui/contextmenu.h"
 #include "ardos/gui/menubar.h"
+#include "ardos/kernel/config.h"
+#include "ardos/kernel/logger.h"
+
+#include "ardos/kernel/process.h"
+#include "ardos/process/process.h"
+#include "ardos/process/process_context.h"
+
 #include <ardos/bus/touch_message.h>
 #include <ardos/gui/bus/render_component_message.h>
 #include <ardos/gui/compositor.h>
 #include <ardos/gui/window.h>
 #include <ardos/kernel/state.h>
+#include <ardos/process/app_registry.h>
 #include <cstdint>
 
 using namespace ardos::bus;
 using namespace ardos::gui::bus;
+using namespace ardos::kernel;
+
+Compositor* Compositor::mInstance = nullptr;
 
 Compositor::Compositor()
 {
@@ -31,6 +43,10 @@ void Compositor::start()
     MessageBus::subscribe(RENDER_MENUBAR_MESSAGE, this);
     MessageBus::subscribe(RENDER_CONTEXTMENU_MESSAGE, this);
     MessageBus::subscribe(RENDER_BUTTON_MESSAGE, this);
+    Logger::Log(LogLevel::Info, "Compositor started");
+
+    ardos::drivers::DisplayDriver* displayDriver = ardos::drivers::DisplayDriver::getInstance();
+    displayDriver->fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000); // Clear the screen with black
 }
 
 void Compositor::stop()
@@ -46,6 +62,7 @@ void Compositor::stop()
     MessageBus::unsubscribe(RENDER_MENUBAR_MESSAGE, this);
     MessageBus::unsubscribe(RENDER_CONTEXTMENU_MESSAGE, this);
     MessageBus::unsubscribe(RENDER_BUTTON_MESSAGE, this);
+    Logger::Log(LogLevel::Info, "Compositor stopped");
 }
 
 void Compositor::run()
@@ -95,14 +112,17 @@ void Compositor::onMessage(const std::string& topic, const Message& message)
     {
         if (topic == TOUCH_START_MESSAGE)
         {
+            Logger::Log(LogLevel::Debug, "Compositor received touch start message");
             onTouchStart(static_cast<const TouchMessage&>(message));
         }
         else if (topic == TOUCH_MOVE_MESSAGE)
         {
+            Logger::Log(LogLevel::Debug, "Compositor received touch move message");
             onTouchMove(static_cast<const TouchMessage&>(message));
         }
         else if (topic == TOUCH_END_MESSAGE)
         {
+            Logger::Log(LogLevel::Debug, "Compositor received touch end message");
             onTouchEnd(static_cast<const TouchMessage&>(message));
         }
     }
@@ -118,9 +138,9 @@ void Compositor::onTouchStart(const TouchMessage& message)
             if (p && p->contains(message.getX(), message.getY()))
             {
                 mFocused = p;
-                p->setFocused(true);
                 TouchMessage msgNew = message;
                 msgNew.setSourcePid(pid);
+                msgNew.setElementId((uintptr_t)p);
                 MessageBus::publish(TOUCH_START_MESSAGE, msgNew);
                 return;
             }
@@ -213,9 +233,13 @@ void Compositor::addPanel(void* panel, uint32_t pid)
 
 Compositor* Compositor::GetInstance()
 {
-    if (!Instance)
+    if (!mInstance)
     {
-        Instance = new Compositor();
+        mInstance = new Compositor();
+        auto pid = PidManager::allocatePid();
+        ProcessContext* context = new ProcessContext(pid);
+        Process* process = new Process("Compositor", context, mInstance);
+        ProcessManager::addProcess(process);
     }
-    return Instance;
+    return mInstance;
 }

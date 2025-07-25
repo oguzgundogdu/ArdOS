@@ -1,7 +1,6 @@
 #include "ardos/drivers/display.h"
 #include "Arduino.h"
 #include "api/Common.h"
-#include "ardos/bus/message_bus.h"
 #include <Fonts/FreeMono9pt7b.h>
 
 using namespace ardos::drivers;
@@ -30,7 +29,7 @@ void DisplayDriver::start()
     pinMode(TFT_LED, OUTPUT);
     digitalWrite(TFT_LED, HIGH);
     tft->setRotation(1);
-    tft->setFont(&FreeMono9pt7b);
+    // tft->setFont(&FreeMono9pt7b);
     this->setBrightness(BRIGHTNESS);
     Serial.println("Display driver initialized");
 }
@@ -73,6 +72,45 @@ void DisplayDriver::fillRect(int x, int y, int width, int height, uint16_t color
     tft->fillRect(x, y, width, height, color);
 }
 
+void DisplayDriver::drawCharLarge(char c, int x, int y, uint16_t color)
+{
+    switch (c)
+    {
+    case 'A':
+        tft->fillRect(x + 2, y, 6, 1, color);
+        tft->fillRect(x + 1, y + 1, 1, 7, color);
+        tft->fillRect(x + 7, y + 1, 1, 7, color);
+        tft->fillRect(x + 2, y + 4, 6, 1, color);
+        break;
+    case 'R':
+        tft->fillRect(x, y, 2, 10, color);
+        tft->fillRect(x + 2, y, 4, 2, color);
+        tft->fillRect(x + 6, y + 2, 2, 2, color);
+        tft->fillRect(x + 2, y + 4, 4, 2, color);
+        tft->fillRect(x + 6, y + 6, 2, 4, color);
+        break;
+    case 'D':
+        tft->fillRect(x, y, 2, 10, color);
+        tft->fillRect(x + 2, y, 4, 2, color);
+        tft->fillRect(x + 6, y + 2, 2, 6, color);
+        tft->fillRect(x + 2, y + 8, 4, 2, color);
+        break;
+    case 'O':
+        tft->fillRect(x + 1, y, 6, 2, color);
+        tft->fillRect(x, y + 2, 2, 6, color);
+        tft->fillRect(x + 7, y + 2, 2, 6, color);
+        tft->fillRect(x + 1, y + 8, 6, 2, color);
+        break;
+    case 'S':
+        tft->fillRect(x + 1, y, 6, 2, color);
+        tft->fillRect(x, y + 2, 2, 2, color);
+        tft->fillRect(x + 1, y + 4, 6, 2, color);
+        tft->fillRect(x + 7, y + 6, 2, 2, color);
+        tft->fillRect(x + 1, y + 8, 6, 2, color);
+        break;
+    }
+}
+
 void DisplayDriver::setBrightness(int brightness)
 {
     analogWrite(TFT_LED, brightness);
@@ -105,5 +143,9 @@ void DisplayDriver::print(const char* text)
 
 DisplayDriver* DisplayDriver::getInstance()
 {
+    if (!instance)
+    {
+        instance = new DisplayDriver();
+    }
     return instance;
 }

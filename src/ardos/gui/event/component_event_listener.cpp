@@ -1,3 +1,5 @@
+#include "Arduino.h"
+#include "ardos/kernel/logger.h"
 #include "ardos/kernel/process.h"
 #include "ardos/user/application.h"
 #include <ardos/gui/event.h>
@@ -17,7 +19,7 @@ ComponentEventListener::ComponentEventListener() : EventListener()
         if (eventDispatcher != nullptr)
         {
             eventDispatcher->registerListener(this);
-            eventDispatcher = eventDispatcher; // Store the dispatcher for later use
+            this->eventDispatcher = eventDispatcher; // Store the dispatcher for later use
         }
     }
 }
@@ -26,6 +28,8 @@ void ComponentEventListener::OnEvent(const Event& e)
 {
     if (e.type == EventType::Touch)
     {
+        Logger::Log(LogLevel::Debug, "ComponentEventListener received touch event at (" + std::to_string(e.x) + ", " +
+                                         std::to_string(e.y) + ")");
         onTouch(e.data);
     }
     else

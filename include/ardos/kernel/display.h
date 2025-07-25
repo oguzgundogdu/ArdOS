@@ -10,6 +10,19 @@
 
 class DisplayManager : public ardos::bus::MessageListener
 {
+  private:
+    void drawArdosLogo();
+    static DisplayManager* instance;
+
   public:
+    DisplayManager();
     void onMessage(const std::string& topic, const ardos::bus::Message& message) override;
+    static DisplayManager* getInstance()
+    {
+        if (!instance)
+        {
+            instance = new DisplayManager();
+        }
+        return instance;
+    }
 };

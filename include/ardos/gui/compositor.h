@@ -23,11 +23,11 @@ class Compositor : public Application
     void start() override;
     void stop() override;
     static Compositor* GetInstance();
-    void OnEvent(const Event& e) override;
 
   private:
     std::map<int, std::vector<Panel*>> mPanels;
     Panel* mFocused = nullptr;
+    static Compositor* mInstance;
 
     // Window
     void addWindow(Window* window, uint32_t pid);
@@ -60,5 +60,4 @@ class Compositor : public Application
     void onTouchMove(const TouchMessage& message);
     void onTouchEnd(const TouchMessage& message);
     void onKill(const Event& e);
-    static Compositor* Instance;
 };

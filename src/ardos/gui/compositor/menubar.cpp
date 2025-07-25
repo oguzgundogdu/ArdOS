@@ -1,6 +1,7 @@
 #include "ardos/gui/menubar.h"
 #include "ardos/bus/message_bus.h"
 #include "ardos/kernel/bus/fill_rect_message.h"
+#include "ardos/kernel/logger.h"
 #include <ardos/gui/compositor.h>
 #include <ardos/kernel/bus/set_cursor_message.h>
 #include <ardos/kernel/bus/set_text_color_message.h>
@@ -13,6 +14,7 @@ void Compositor::renderMenuBar(MenuBar* menuBar, uint32_t pid)
 {
     if (!menuBar)
         return;
+    ardos::kernel::Logger::Log(ardos::kernel::LogLevel::Info, "Rendering MenuBar for PID: " + std::to_string(pid));
     if (menuBar->isVisible())
     {
         MessageBus::publish(FILL_RECT_MESSAGE,
