@@ -12,3 +12,16 @@ void Button::onTouch(void* data)
         mCallback();
     }
 }
+
+void Button::Init()
+{
+    auto* eventDispatcher = getEventDispatcher();
+
+    eventDispatcher->dispatch(Event{
+        EventType::RenderButton,
+        0,
+        0,
+        getId(),
+        nullptr,
+    });
+}

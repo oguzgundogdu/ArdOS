@@ -8,7 +8,7 @@ class Container : public Panel
     ~Container() override;
 
     void onTouch(void* data = nullptr) override;
-
+    void Init() override;
     void AddChild(Panel* panel);
     void RemoveChild(Panel* panel);
     const std::vector<Panel*>& GetChildren() const

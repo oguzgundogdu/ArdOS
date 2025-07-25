@@ -1,6 +1,7 @@
 #include "ardos/drivers/display.h"
 #include "ardos/drivers/input.h"
 #include "ardos/drivers/rtc.h"
+#include "ardos/kernel/process.h"
 #include <ardos/kernel/kernel.h>
 
 using namespace ardos::kernel;
@@ -30,6 +31,8 @@ void Kernel::run()
 
     drivers::DisplayDriver* displayDriver = drivers::DisplayDriver::getInstance();
     displayDriver->run();
+
+    ProcessManager::tick();
 }
 
 Kernel* Kernel::getInstance()
@@ -55,8 +58,7 @@ void Kernel::initializeDrivers()
 
 void Kernel::initializeProcesses()
 {
-    // Initialize system processes
-    // This could include creating the system process, compositor, etc.
+    ProcessManager::initialize();
 }
 
 Kernel* Kernel::instance = nullptr; // Initialize the static instance pointer

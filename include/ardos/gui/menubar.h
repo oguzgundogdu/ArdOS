@@ -13,6 +13,7 @@ class MenuBar : public Container
 {
   public:
     MenuBar();
+    void Init() override;
 
   private:
     ContextMenu* mMenu = nullptr;

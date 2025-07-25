@@ -26,8 +26,12 @@ namespace ardos::kernel
         static Process* getProcess(uint32_t pid);
         static const std::vector<Process*>& list();
         static void tick();
+        static void initialize();
+        static Process* getCurrentProcess();
+        static void setCurrentProcess(Process* proc);
 
       private:
         static std::vector<Process*> processes;
+        static Process* mCurrentProcess;
     };
 } // namespace ardos::kernel

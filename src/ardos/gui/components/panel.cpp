@@ -1,4 +1,5 @@
 
+
 #include <Arduino.h>
 #include <ardos/gui/panel.h>
 #include <cstdint>
@@ -38,7 +39,12 @@ bool Panel::intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh)
 void Panel::setVisible(bool visible)
 {
     is_visible = visible;
+    this->Init(); // Reinitialize the panel to reflect visibility changes
+}
 
+void Panel::Init()
+{
+    auto* eventDispatcher = getEventDispatcher();
     if (eventDispatcher != nullptr)
     {
         Event event;

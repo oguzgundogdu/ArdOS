@@ -8,6 +8,9 @@ namespace ardos::process
     class ProcessContext
     {
       public:
+        ProcessContext(uint32_t pid) : mPid(pid)
+        {
+        }
         std::map<std::string, std::string> memory; // Simulated process memory
         // Future: Add isolated file system, event manager etc.
 
@@ -35,5 +38,13 @@ namespace ardos::process
         {
             memory.erase(key);
         }
+
+        uint32_t getPid() const
+        {
+            return mPid;
+        }
+
+      private:
+        uint32_t mPid;
     };
 } // namespace ardos::process

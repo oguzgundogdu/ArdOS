@@ -21,6 +21,7 @@ namespace ardos::process
         uint32_t getPid() const;
         ProcessState getState() const;
         ProcessContext* getContext() const;
+        ManagedProcess* getApplication() const;
         const std::string& getName() const;
         void tick();
 

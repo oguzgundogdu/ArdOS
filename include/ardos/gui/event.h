@@ -9,9 +9,17 @@ namespace ardos::gui::event
     class ComponentEventListener : public EventListener
     {
       public:
+        ComponentEventListener();
         void OnEvent(const Event& e) override;
 
       protected:
         virtual void onTouch(void* data = nullptr) = 0;
+        EventDispatcher* getEventDispatcher() const
+        {
+            return eventDispatcher;
+        }
+
+      private:
+        EventDispatcher* eventDispatcher = nullptr;
     };
 } // namespace ardos::gui::event

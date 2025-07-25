@@ -3,6 +3,7 @@
 
 MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
 {
+
     mButton = new Button(0, 0, 50, MENU_HEIGHT, "Menu");
     mButton->setBackgroundColor(MENU_BG_COLOR);
     mButton->setBorderColor(MENU_BG_COLOR);
@@ -25,9 +26,31 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
                 mMenu->AddItem("Settings", []() {});
                 mMenu->AddItem("About", []() {});
                 AddChild(mMenu);
+                mMenu->Init();
             }
         });
     AddChild(mButton);
+}
+
+void MenuBar::Init()
+{
+    auto* eventDispatcher = getEventDispatcher();
+
+    eventDispatcher->dispatch(Event{
+        EventType::RenderMenuBar,
+        0,
+        0,
+        getId(),
+        nullptr,
+    });
+
+    for (auto* child : GetChildren())
+    {
+        if (child)
+        {
+            child->Init();
+        }
+    }
 }
 
 /*void MenuBar::render()

@@ -8,7 +8,7 @@ class Button : public Panel
 {
   public:
     using Callback = std::function<void()>;
-
+    void Init() override;
     Button(int16_t x, int16_t y, int16_t w, int16_t h, const std::string& label);
     std::string GetLabel() const
     {

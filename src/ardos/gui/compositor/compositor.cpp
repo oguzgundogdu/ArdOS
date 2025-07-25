@@ -1,5 +1,4 @@
 #include "ardos/bus/message_bus.h"
-#include "ardos/process/process_context.h"
 #include <ardos/bus/touch_message.h>
 #include <ardos/gui/compositor.h>
 #include <ardos/gui/window.h>
@@ -15,7 +14,7 @@ void Compositor::Render()
 {
 }
 
-void Compositor::start(ProcessContext* context)
+void Compositor::start()
 {
 
     // Register for touch messages

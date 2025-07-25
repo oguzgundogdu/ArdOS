@@ -38,3 +38,15 @@ void Container::onTouch(void* data)
         return;
     }
 }
+
+void Container::Init()
+{
+    Panel::Init();
+    for (Panel* child : *mChildren)
+    {
+        if (child)
+        {
+            child->Init();
+        }
+    }
+}

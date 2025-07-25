@@ -21,9 +21,10 @@ class Compositor : public Application
     void Render();
     void onMessage(const std::string& topic, const Message& message) override;
     void run() override;
-    void start(ProcessContext* context) override;
+    void start() override;
     void stop() override;
     static Compositor* GetInstance();
+    void OnEvent(const Event& e) override;
 
   private:
     std::map<int, std::vector<Panel*>> mPanels;

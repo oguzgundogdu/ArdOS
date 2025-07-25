@@ -2,12 +2,15 @@
 
 #include "Adafruit_ILI9341.h"
 #include <ardos/gui/event.h>
+#include <cstdint>
 #include <functional>
 
 using namespace ardos::gui::event;
 
 class Panel : public ComponentEventListener
 {
+  private:
+    uint32_t id; // Unique identifier for the panel
   protected:
     using Callback = std::function<void()>;
     int x, y, width, height;
@@ -17,15 +20,27 @@ class Panel : public ComponentEventListener
     int color = ILI9341_WHITE;           // Default color
     int backgroundColor = ILI9341_BLACK; // Default background color
     int borderColor = ILI9341_WHITE;     // Default border color
-    EventDispatcher* eventDispatcher = nullptr;
     void onTouch(void* data = nullptr) override;
 
   public:
     Panel(int x, int y, int width, int height);
     virtual ~Panel();
     virtual bool contains(int px, int py);
+    virtual void Init();
 
     bool intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh);
+
+    uint32_t getId() const
+    {
+        return id;
+    }
+    void setId(uint32_t newId)
+    {
+        if (id > 0)
+            return;
+
+        id = newId;
+    }
 
     int getX() const
     {
@@ -117,11 +132,5 @@ class Panel : public ComponentEventListener
     int getBorderColor() const
     {
         return borderColor;
-    }
-
-    void setEventDispatcher(EventDispatcher* dispatcher)
-    {
-        eventDispatcher = dispatcher;
-        eventDispatcher->registerListener(this);
     }
 };

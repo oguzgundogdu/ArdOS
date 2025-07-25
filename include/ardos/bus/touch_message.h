@@ -2,6 +2,7 @@
 
 // Adjust the include path to the correct relative location
 #include "message_bus.h"
+#include <cstdint>
 
 #define TOUCH_START_MESSAGE "touch/start"
 #define TOUCH_MOVE_MESSAGE "touch/move"
@@ -33,9 +34,20 @@ namespace ardos::bus
             return last_touch_time;
         }
 
+        void setElementId(uint32_t id)
+        {
+            mElementId = id;
+        }
+
+        uint32_t getElementId() const
+        {
+            return mElementId;
+        }
+
       private:
         int x;
         int y;
+        uint32_t mElementId;
         long last_touch_time;
     };
 

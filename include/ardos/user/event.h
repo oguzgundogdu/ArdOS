@@ -9,7 +9,12 @@ namespace ardos::user::event
     enum class EventType : std::uint8_t
     {
         Touch,
-        RenderPanel
+        RenderPanel,
+        RenderContainer,
+        RenderWindow,
+        RenderButton,
+        RenderMenuBar,
+        RenderContextMenu,
     };
 
     struct Event
@@ -18,6 +23,7 @@ namespace ardos::user::event
         int16_t x, y;
         uintptr_t id;         // Unique identifier for the event
         void* data = nullptr; // Additional data if needed
+        uint32_t elementId;
     };
 
     class EventListener

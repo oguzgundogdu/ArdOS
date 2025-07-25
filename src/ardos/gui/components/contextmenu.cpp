@@ -17,3 +17,24 @@ void ContextMenu::AddItem(const std::string& label, const Callback& callback)
     button->setCallback(callback);
     AddChild(button);
 }
+
+void ContextMenu::Init()
+{
+    auto* eventDispatcher = getEventDispatcher();
+
+    eventDispatcher->dispatch(Event{
+        EventType::RenderContextMenu,
+        0,
+        0,
+        getId(),
+        nullptr,
+    });
+
+    for (auto* child : GetChildren())
+    {
+        if (child)
+        {
+            child->Init();
+        }
+    }
+}

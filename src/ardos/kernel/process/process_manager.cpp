@@ -5,7 +5,7 @@
 
 namespace ardos::kernel
 {
-
+    Process* ProcessManager::mCurrentProcess = nullptr;
     std::vector<Process*> ProcessManager::processes;
 
     void ProcessManager::addProcess(Process* proc)
@@ -45,9 +45,28 @@ namespace ardos::kernel
         {
             if (proc->getState() == ProcessState::Running)
             {
+                setCurrentProcess(proc);
                 proc->tick();
             }
         }
+    }
+
+    void ProcessManager::initialize()
+    {
+        for (auto* proc : processes)
+        {
+            proc->start();
+        }
+    }
+
+    Process* ProcessManager::getCurrentProcess()
+    {
+        return mCurrentProcess;
+    }
+
+    void ProcessManager::setCurrentProcess(Process* proc)
+    {
+        mCurrentProcess = proc;
     }
 
 } // namespace ardos::kernel

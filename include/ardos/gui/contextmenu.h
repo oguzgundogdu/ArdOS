@@ -18,6 +18,7 @@ class ContextMenu : public Container
     ContextMenu(int16_t x, int16_t y);
 
     void AddItem(const std::string& label, const Callback& callback);
+    void Init() override;
 
   private:
     static constexpr int ITEM_HEIGHT = 14;

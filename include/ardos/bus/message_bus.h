@@ -12,6 +12,7 @@ namespace ardos::bus
     enum class MessageType : uint16_t
     {
         Display = 1 << 0,
+
         Render = 1 << 1,
         Input = 1 << 2,
         Time = 1 << 3
@@ -49,6 +50,7 @@ namespace ardos::bus
     class MessageListener
     {
       public:
+        MessageListener() = default;
         virtual ~MessageListener() = default;
         virtual void onMessage(const std::string& topic, const Message& message) = 0;
     };

@@ -11,7 +11,7 @@ void Process::start()
 {
     if (state == ProcessState::Created || state == ProcessState::Stopped)
     {
-        app->start(context);
+        app->start();
         state = ProcessState::Running;
     }
 }
@@ -48,6 +48,11 @@ const std::string& Process::getName() const
 ProcessContext* Process::getContext() const
 {
     return context;
+}
+
+ManagedProcess* Process::getApplication() const
+{
+    return app;
 }
 
 void Process::tick()
