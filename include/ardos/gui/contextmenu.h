@@ -19,6 +19,7 @@ class ContextMenu : public Container
 
     void AddItem(const std::string& label, const Callback& callback);
     void Init() override;
+    void onBlur(void* data = nullptr) override;
 
   private:
     static constexpr int ITEM_HEIGHT = 14;

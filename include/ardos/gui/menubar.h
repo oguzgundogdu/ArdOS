@@ -25,6 +25,7 @@ class MenuBar : public Container
         if (mMenu)
         {
             mMenu->setVisible(!mMenu->isVisible());
+            mMenu->Init();
         }
     }
 };

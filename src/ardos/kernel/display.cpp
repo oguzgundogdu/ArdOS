@@ -105,14 +105,13 @@ void DisplayManager::onMessage(const std::string& topic, const ardos::bus::Messa
 void DisplayManager::drawArdosLogo()
 {
     ardos::drivers::DisplayDriver* driver = ardos::drivers::DisplayDriver::getInstance();
-    int startX = 40;
+    int startX = 60;
     int startY = 60;
     int spacing = 12;
     uint16_t color = ILI9341_WHITE;
     driver->fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x0000); // Clear screen
-    driver->drawCharLarge('A', startX + spacing * 0, startY, color);
-    driver->drawCharLarge('R', startX + spacing * 1, startY, color);
-    driver->drawCharLarge('D', startX + spacing * 2, startY, color);
-    driver->drawCharLarge('O', startX + spacing * 3, startY, color);
-    driver->drawCharLarge('S', startX + spacing * 4, startY, color);
+    driver->setTextColor(color);
+    driver->setTextSize(5);
+    driver->setCursor(startX, startY);
+    driver->print("ArdOS");
 }

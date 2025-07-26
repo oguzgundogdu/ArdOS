@@ -33,10 +33,6 @@ void Container::RemoveChild(Panel* panel)
 
 void Container::onTouch(void* data)
 {
-    if (!is_visible)
-    {
-        return;
-    }
 }
 
 void Container::Init()

@@ -9,6 +9,7 @@ namespace ardos::user::event
     enum class EventType : std::uint8_t
     {
         Touch,
+        Blur,
         RenderPanel,
         RenderContainer,
         RenderWindow,
@@ -21,15 +22,16 @@ namespace ardos::user::event
     {
         EventType type; // Exp: Touch
         int16_t x, y;
-        uintptr_t id;         // Unique identifier for the event
-        void* data = nullptr; // Additional data if needed
-        uint32_t elementId;
+        uintptr_t id;                                       // Unique identifier for the event
+        void* data = nullptr;                               // Additional data if needed
+        const std::vector<uintptr_t>* elementIds = nullptr; // List of element IDs involved in the event
+        bool cancel = false;                                // Flag to cancel the event
     };
 
     class EventListener
     {
       public:
-        virtual void OnEvent(const Event& e) = 0;
+        virtual void OnEvent(Event& e) = 0;
     };
 
     class EventDispatcher
@@ -40,7 +42,7 @@ namespace ardos::user::event
       public:
         EventDispatcher();
         ~EventDispatcher();
-        void dispatch(const Event& event);
+        void dispatch(Event& event);
         void registerListener(EventListener* listener);
         void unregisterListener(EventListener* listener);
     };

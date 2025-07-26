@@ -3,6 +3,7 @@
 // Adjust the include path to the correct relative location
 #include "message_bus.h"
 #include <cstdint>
+#include <vector>
 
 #define TOUCH_START_MESSAGE "touch/start"
 #define TOUCH_MOVE_MESSAGE "touch/move"
@@ -34,20 +35,20 @@ namespace ardos::bus
             return last_touch_time;
         }
 
-        void setElementId(uint32_t id)
+        void addElementId(uintptr_t id)
         {
-            mElementId = id;
+            mElementIds.push_back(id);
         }
 
-        uint32_t getElementId() const
+        const std::vector<uintptr_t>* getElementIds() const
         {
-            return mElementId;
+            return &mElementIds;
         }
 
       private:
         int x;
         int y;
-        uint32_t mElementId;
+        std::vector<uintptr_t> mElementIds;
         long last_touch_time;
     };
 

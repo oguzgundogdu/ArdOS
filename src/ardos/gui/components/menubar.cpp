@@ -1,4 +1,3 @@
-
 #include "Arduino.h"
 #include <ardos/gui/menubar.h>
 
@@ -14,6 +13,7 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
     mButton->setCallback(
         [this]()
         {
+            Serial.println("Menu button clicked");
             if (mMenu)
             {
                 toggleContextMenu();
@@ -33,21 +33,15 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
             }
         });
     AddChild(mButton);
-    Serial.println("MenuBar initialized");
 }
 
 void MenuBar::Init()
 {
-    Serial.println("MenuBar Init called");
     auto* eventDispatcher = getEventDispatcher();
-
-    eventDispatcher->dispatch(Event{
-        EventType::RenderMenuBar,
-        0,
-        0,
-        (uintptr_t)this,
-        this,
-    });
+    Event event{
+        EventType::RenderMenuBar, 0, 0, (uintptr_t)this, this,
+    };
+    eventDispatcher->dispatch(event);
 
     for (auto* child : GetChildren())
     {
@@ -56,8 +50,6 @@ void MenuBar::Init()
             child->Init();
         }
     }
-
-    Serial.println("MenuBar Init completed");
 }
 
 /*void MenuBar::render()

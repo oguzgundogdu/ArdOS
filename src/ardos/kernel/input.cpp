@@ -9,24 +9,26 @@
 using namespace ardos::bus;
 using namespace ardos::kernel;
 
+InputManager* InputManager::instance = nullptr;
+
 InputManager::InputManager()
 {
-    MessageBus::subscribe(TOUCH_START_MESSAGE, this);
-    MessageBus::subscribe(TOUCH_MOVE_MESSAGE, this);
-    MessageBus::subscribe(TOUCH_END_MESSAGE, this);
+    MessageBus::subscribe(DRIVER_TOUCH_START_MESSAGE, this);
+    MessageBus::subscribe(DRIVER_TOUCH_MOVE_MESSAGE, this);
+    MessageBus::subscribe(DRIVER_TOUCH_END_MESSAGE, this);
 }
 
 void InputManager::onMessage(const std::string& topic, const ardos::bus::Message& message)
 {
-    if (topic == TOUCH_START_MESSAGE)
+    if (topic == DRIVER_TOUCH_START_MESSAGE)
     {
         handleTouchStart(message);
     }
-    else if (topic == TOUCH_MOVE_MESSAGE)
+    else if (topic == DRIVER_TOUCH_MOVE_MESSAGE)
     {
         handleTouchMove(message);
     }
-    else if (topic == TOUCH_END_MESSAGE)
+    else if (topic == DRIVER_TOUCH_END_MESSAGE)
     {
         handleTouchEnd(message);
     }
@@ -34,7 +36,8 @@ void InputManager::onMessage(const std::string& topic, const ardos::bus::Message
 
 void InputManager::handleTouchStart(const ardos::bus::Message& message)
 {
-    TimeManager* timeManager = TimeManager::getInstance();
+    TouchMessage touchMessage = static_cast<const TouchMessage&>(message);
+    /*TimeManager* timeManager = TimeManager::getInstance();
     PowerManager* powerManager = PowerManager::getInstance();
     TouchMessage touchMessage = static_cast<const TouchMessage&>(message);
     tm currentTime = timeManager->getCurrentTime();
@@ -49,19 +52,19 @@ void InputManager::handleTouchStart(const ardos::bus::Message& message)
              !powerManager->isSleepMode())
     {
         powerManager->setPowerSaveMode(true);
-    }
+    }*/
 
-    MessageBus::publish(TOUCH_START_MESSAGE, touchMessage);
+    MessageBus::publish(KERNEL_TOUCH_START_MESSAGE, touchMessage);
 }
 
 void InputManager::handleTouchMove(const ardos::bus::Message& message)
 {
     auto touchMessage = static_cast<const TouchMessage&>(message);
-    MessageBus::publish(TOUCH_MOVE_MESSAGE, touchMessage);
+    MessageBus::publish(KERNEL_TOUCH_MOVE_MESSAGE, touchMessage);
 }
 
 void InputManager::handleTouchEnd(const ardos::bus::Message& message)
 {
     auto touchMessage = static_cast<const TouchMessage&>(message);
-    MessageBus::publish(TOUCH_END_MESSAGE, touchMessage);
+    MessageBus::publish(KERNEL_TOUCH_END_MESSAGE, touchMessage);
 }

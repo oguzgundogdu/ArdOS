@@ -4,7 +4,6 @@
 
 ContextMenu::ContextMenu(int16_t x, int16_t y) : Container(x, y, 100, 42)
 {
-    Serial.println("Creating ContextMenu");
 }
 
 void ContextMenu::AddItem(const std::string& label, const Callback& callback)
@@ -21,14 +20,10 @@ void ContextMenu::AddItem(const std::string& label, const Callback& callback)
 void ContextMenu::Init()
 {
     auto* eventDispatcher = getEventDispatcher();
-
-    eventDispatcher->dispatch(Event{
-        EventType::RenderContextMenu,
-        0,
-        0,
-        (uintptr_t)this,
-        nullptr,
-    });
+    Event event{
+        EventType::RenderContextMenu, 0, 0, (uintptr_t)this, this,
+    };
+    eventDispatcher->dispatch(event);
 
     for (auto* child : GetChildren())
     {
@@ -37,4 +32,17 @@ void ContextMenu::Init()
             child->Init();
         }
     }
+}
+
+void ContextMenu::onBlur(void* data)
+{
+    if (!isVisible())
+        return;
+
+    setVisible(false);
+    auto* eventDispatcher = getEventDispatcher();
+    Event event{
+        EventType::RenderContextMenu, 0, 0, (uintptr_t)this, this,
+    };
+    eventDispatcher->dispatch(event);
 }

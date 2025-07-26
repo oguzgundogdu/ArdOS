@@ -4,12 +4,11 @@
 #include "ardos/gui/contextmenu.h"
 #include "ardos/gui/menubar.h"
 #include "ardos/kernel/config.h"
+#include "ardos/kernel/input.h"
 #include "ardos/kernel/logger.h"
-
 #include "ardos/kernel/process.h"
 #include "ardos/process/process.h"
 #include "ardos/process/process_context.h"
-
 #include <ardos/bus/touch_message.h>
 #include <ardos/gui/bus/render_component_message.h>
 #include <ardos/gui/compositor.h>
@@ -24,17 +23,15 @@ using namespace ardos::kernel;
 
 Compositor* Compositor::mInstance = nullptr;
 
-Compositor::Compositor()
-{
-}
+Compositor::Compositor() = default;
 
 void Compositor::start()
 {
 
     // Register for touch messages
-    MessageBus::subscribe(TOUCH_START_MESSAGE, this);
-    MessageBus::subscribe(TOUCH_MOVE_MESSAGE, this);
-    MessageBus::subscribe(TOUCH_END_MESSAGE, this);
+    MessageBus::subscribe(KERNEL_TOUCH_START_MESSAGE, this);
+    MessageBus::subscribe(KERNEL_TOUCH_MOVE_MESSAGE, this);
+    MessageBus::subscribe(KERNEL_TOUCH_END_MESSAGE, this);
 
     // Register for window messages
     MessageBus::subscribe(RENDER_PANEL_MESSAGE, this);
@@ -52,9 +49,9 @@ void Compositor::start()
 void Compositor::stop()
 {
     // Unsubscribe from messages
-    MessageBus::unsubscribe(TOUCH_START_MESSAGE, this);
-    MessageBus::unsubscribe(TOUCH_MOVE_MESSAGE, this);
-    MessageBus::unsubscribe(TOUCH_END_MESSAGE, this);
+    MessageBus::unsubscribe(KERNEL_TOUCH_START_MESSAGE, this);
+    MessageBus::unsubscribe(KERNEL_TOUCH_MOVE_MESSAGE, this);
+    MessageBus::unsubscribe(KERNEL_TOUCH_END_MESSAGE, this);
 
     MessageBus::unsubscribe(RENDER_PANEL_MESSAGE, this);
     MessageBus::unsubscribe(RENDER_WINDOW_MESSAGE, this);
@@ -71,7 +68,6 @@ void Compositor::run()
 
 void Compositor::onMessage(const std::string& topic, const Message& message)
 {
-
     if (message.getType() == MessageType::Render)
     {
         RenderComponentMessage renderMessage = static_cast<const RenderComponentMessage&>(message);
@@ -110,17 +106,17 @@ void Compositor::onMessage(const std::string& topic, const Message& message)
     }
     else if (message.getType() == MessageType::Input)
     {
-        if (topic == TOUCH_START_MESSAGE)
+        if (topic == KERNEL_TOUCH_START_MESSAGE)
         {
             Logger::Log(LogLevel::Debug, "Compositor received touch start message");
             onTouchStart(static_cast<const TouchMessage&>(message));
         }
-        else if (topic == TOUCH_MOVE_MESSAGE)
+        else if (topic == KERNEL_TOUCH_MOVE_MESSAGE)
         {
             Logger::Log(LogLevel::Debug, "Compositor received touch move message");
             onTouchMove(static_cast<const TouchMessage&>(message));
         }
-        else if (topic == TOUCH_END_MESSAGE)
+        else if (topic == KERNEL_TOUCH_END_MESSAGE)
         {
             Logger::Log(LogLevel::Debug, "Compositor received touch end message");
             onTouchEnd(static_cast<const TouchMessage&>(message));
@@ -130,17 +126,20 @@ void Compositor::onMessage(const std::string& topic, const Message& message)
 
 void Compositor::onTouchStart(const TouchMessage& message)
 {
-
     for (auto& [pid, panels] : mPanels)
     {
+        bool found = false;
+        TouchMessage msgNew = message;
+        msgNew.setSourcePid(pid);
         for (Panel* p : panels)
         {
-            if (p && p->contains(message.getX(), message.getY()))
+            if (p && p->contains(message.getX(), message.getY()) && p->getZIndex() > 0)
             {
+                found = true;
+                Logger::Log(LogLevel::Debug, "Touch start on panel: " + std::to_string((uintptr_t)p));
                 mFocused = p;
-                TouchMessage msgNew = message;
-                msgNew.setSourcePid(pid);
-                msgNew.setElementId((uintptr_t)p);
+
+                msgNew.addElementId((uintptr_t)p);
                 MessageBus::publish(TOUCH_START_MESSAGE, msgNew);
                 return;
             }

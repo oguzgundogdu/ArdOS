@@ -14,6 +14,14 @@ namespace
     int16_t last_x = -1;
     int16_t last_y = -1;
     long last_touch_time = 0;
+    volatile bool touchInterruptTriggered = false;
+
+    void onTouchInterrupt()
+    {
+        touchInterruptTriggered = true;
+        Serial.println("Touch interrupt triggered");
+    }
+
 } // namespace
 
 namespace ardos::drivers
@@ -27,12 +35,14 @@ namespace ardos::drivers
     void InputDriver::start()
     {
         Serial.println("Initializing input driver...");
-        ts = new XPT2046_Touchscreen(T_CS);
+
+        ts = new XPT2046_Touchscreen(T_CS, 2);
         if (!ts->begin())
         {
             Serial.println("Failed to initialize touchscreen!");
             return;
         }
+
         ts->setRotation(3); // landscape mode
         Serial.println("InputDriver initialized successfully");
     }
@@ -55,23 +65,24 @@ namespace ardos::drivers
 
         if (touching)
         {
-            long last_touch_time = millis();
+            last_touch_time = millis();
 
             TS_Point p = ts->getPoint();
-            int16_t screenX = map(p.x, 200, 3800, 0, 320);
-            int16_t screenY = map(p.y, 200, 3800, 0, 240);
+            int16_t screenX = map(p.x, 219, 3807, 0, 320);
+            int16_t screenY = map(p.y, 500, 3660, 0, 240);
 
             if (!wasTouched)
             {
-                MessageBus::publish(TOUCH_START_MESSAGE, TouchMessage(ts->getPoint().x, ts->getPoint().y,
-                                                                      last_touch_time, MessageType::Input));
+                Serial.println("Touch started at: " + String(screenX) + ", " + String(screenY));
+                MessageBus::publish(DRIVER_TOUCH_START_MESSAGE,
+                                    TouchMessage(screenX, screenY, last_touch_time, MessageType::Input));
                 wasTouched = true;
             }
             else
             {
                 if (abs(screenX - last_x) > 2 || abs(screenY - last_y) > 2)
                 {
-                    MessageBus::publish(TOUCH_MOVE_MESSAGE,
+                    MessageBus::publish(DRIVER_TOUCH_MOVE_MESSAGE,
                                         TouchMessage(screenX, screenY, last_touch_time, MessageType::Input));
                 }
                 else
@@ -86,7 +97,8 @@ namespace ardos::drivers
         else if (wasTouched)
         {
             wasTouched = false;
-            MessageBus::publish(TOUCH_END_MESSAGE, TouchMessage(last_x, last_y, last_touch_time, MessageType::Input));
+            MessageBus::publish(DRIVER_TOUCH_END_MESSAGE,
+                                TouchMessage(last_x, last_y, last_touch_time, MessageType::Input));
         }
     }
 

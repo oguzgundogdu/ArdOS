@@ -11,7 +11,7 @@ class Panel : public ComponentEventListener
 {
   protected:
     using Callback = std::function<void()>;
-    int x, y, width, height;
+    int x, y, width, height, zIndex = 0;
     bool focused = false;
     bool is_visible = true;
     Callback mCallback;
@@ -19,6 +19,7 @@ class Panel : public ComponentEventListener
     int backgroundColor = ILI9341_BLACK; // Default background color
     int borderColor = ILI9341_WHITE;     // Default border color
     void onTouch(void* data = nullptr) override;
+    void onBlur(void* data = nullptr) override;
 
   public:
     Panel(int x, int y, int width, int height);
@@ -78,7 +79,10 @@ class Panel : public ComponentEventListener
         return focused;
     }
 
-    void setVisible(bool visible);
+    virtual void setVisible(bool visible)
+    {
+        is_visible = visible;
+    }
     bool isVisible() const
     {
         return is_visible;
@@ -118,5 +122,14 @@ class Panel : public ComponentEventListener
     int getBorderColor() const
     {
         return borderColor;
+    }
+
+    int getZIndex() const
+    {
+        return zIndex;
+    }
+    void setZIndex(int newZIndex)
+    {
+        zIndex = newZIndex;
     }
 };

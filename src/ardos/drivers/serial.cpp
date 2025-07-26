@@ -6,7 +6,9 @@ namespace ardos::drivers
 
     void SerialDriver::start()
     {
-        Serial.begin(9600);
+        while (!Serial)
+            ;
+        Serial.begin(250000);
     }
 
     void SerialDriver::stop()

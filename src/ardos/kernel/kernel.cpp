@@ -4,6 +4,7 @@
 #include "ardos/drivers/rtc.h"
 #include "ardos/drivers/serial.h"
 #include "ardos/kernel/display.h"
+#include "ardos/kernel/input.h"
 #include "ardos/kernel/process.h"
 
 #include <ardos/kernel/kernel.h>
@@ -33,8 +34,9 @@ void Kernel::stop()
 
 void Kernel::run()
 {
-    drivers::RTC* rtcDriver = new drivers::RTC();
-    rtcDriver->run();
+    yield();
+    /*drivers::RTC* rtcDriver = new drivers::RTC();
+    rtcDriver->run();*/
 
     drivers::DisplayDriver* displayDriver = drivers::DisplayDriver::getInstance();
     displayDriver->run();
@@ -43,8 +45,6 @@ void Kernel::run()
     inputDriver->run();
 
     ProcessManager::tick();
-
-    delay(100);
 }
 
 Kernel* Kernel::getInstance()
@@ -74,6 +74,7 @@ void Kernel::initializeDrivers()
 void Kernel::initializeManagers()
 {
     DisplayManager* displayManager = DisplayManager::getInstance();
+    InputManager* inputManager = InputManager::getInstance();
 }
 
 Kernel* Kernel::instance = nullptr; // Initialize the static instance pointer

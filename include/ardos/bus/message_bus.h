@@ -8,7 +8,6 @@
 
 namespace ardos::bus
 {
-
     enum class MessageType : uint16_t
     {
         Display = 1 << 0,

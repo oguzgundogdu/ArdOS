@@ -14,7 +14,7 @@ namespace ardos::user
       public:
         Application();
         void onMessage(const std::string& topic, const Message& message) override;
-        void OnEvent(const Event& e) override;
+        void OnEvent(Event& e) override;
         event::EventDispatcher* getEventDispatcher() const;
 
       protected:

@@ -1,8 +1,7 @@
-#include "Arduino.h"
-#include "ardos/kernel/logger.h"
 #include "ardos/kernel/process.h"
 #include "ardos/user/application.h"
 #include <ardos/gui/event.h>
+#include <cstdint>
 
 using namespace ardos::user::event;
 using namespace ardos::gui::event;
@@ -24,13 +23,21 @@ ComponentEventListener::ComponentEventListener() : EventListener()
     }
 }
 
-void ComponentEventListener::OnEvent(const Event& e)
+void ComponentEventListener::OnEvent(Event& e)
 {
+    if (e.cancel)
+        return;
     if (e.type == EventType::Touch)
     {
-        Logger::Log(LogLevel::Debug, "ComponentEventListener received touch event at (" + std::to_string(e.x) + ", " +
-                                         std::to_string(e.y) + ")");
-        onTouch(e.data);
+        if (std::find(e.elementIds->begin(), e.elementIds->end(), (uintptr_t)this) != e.elementIds->end())
+        {
+            onTouch(e.data);
+            e.cancel = true; // Cancel the event to prevent further propagation
+        }
+        else
+        {
+            onBlur(e.data); // Call onBlur if the event is not for this component
+        }
     }
     else
     {

@@ -1,8 +1,8 @@
 #pragma once
 #define T_CS 7
-#define TOUCH_START_MESSAGE "touch_start"
-#define TOUCH_MOVE_MESSAGE "touch_move"
-#define TOUCH_END_MESSAGE "touch_end"
+#define DRIVER_TOUCH_START_MESSAGE "touch/driverstart"
+#define DRIVER_TOUCH_MOVE_MESSAGE "touch/drivermove"
+#define DRIVER_TOUCH_END_MESSAGE "touch/driverend"
 #include "ardos/drivers/driver.h"
 
 namespace ardos::drivers
@@ -29,6 +29,7 @@ namespace ardos::drivers
         }
 
       private:
+        unsigned long lastTouchCheck = 0;
         static InputDriver* instance;
     };
 } // namespace ardos::drivers

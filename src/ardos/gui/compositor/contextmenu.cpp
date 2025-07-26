@@ -1,4 +1,3 @@
-#include "ardos/gui/button.h"
 #include "ardos/gui/compositor.h"
 #include "ardos/kernel/bus/draw_rect_message.h"
 #include "ardos/kernel/bus/fill_rect_message.h"
@@ -10,8 +9,7 @@ using namespace ardos::kernel::bus;
 
 void Compositor::renderContextMenu(ContextMenu* contextMenu, uint32_t pid)
 {
-    Serial.println("Rendering ContextMenu in Compositor");
-    if (contextMenu && contextMenu->isVisible())
+    if (contextMenu->isVisible())
     {
         MessageBus::publish(FILL_RECT_MESSAGE,
                             FillRectMessage(contextMenu->getX(), contextMenu->getY(), contextMenu->getWidth(),
@@ -24,18 +22,11 @@ void Compositor::renderContextMenu(ContextMenu* contextMenu, uint32_t pid)
                                             MessageType::Display));
 
         MessageBus::publish(SET_TEXT_SIZE_MESSAGE, SetTextSizeMessage(1, pid, MessageType::Display));
-
-        const auto& children = contextMenu->GetChildren();
-        for (size_t i = 0; i < children.size(); ++i)
-        {
-            Button* btn = static_cast<Button*>(children[i]);
-            // render each button in the context menu
-        }
     }
     else
     {
         MessageBus::publish(FILL_RECT_MESSAGE,
                             FillRectMessage(contextMenu->getX(), contextMenu->getY(), contextMenu->getWidth(),
-                                            contextMenu->getHeight(), 0x0, pid, MessageType::Display));
+                                            contextMenu->getHeight(), 0x0000, pid, MessageType::Display));
     }
 }

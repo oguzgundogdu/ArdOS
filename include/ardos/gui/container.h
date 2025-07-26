@@ -11,6 +11,17 @@ class Container : public Panel
     void Init() override;
     void AddChild(Panel* panel);
     void RemoveChild(Panel* panel);
+    void setVisible(bool visible) override
+    {
+        is_visible = visible;
+        for (auto* child : *mChildren)
+        {
+            if (child)
+            {
+                child->setVisible(visible);
+            }
+        }
+    }
     const std::vector<Panel*>& GetChildren() const
     {
         return *mChildren;

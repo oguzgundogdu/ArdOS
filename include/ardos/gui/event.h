@@ -10,10 +10,11 @@ namespace ardos::gui::event
     {
       public:
         ComponentEventListener();
-        void OnEvent(const Event& e) override;
+        void OnEvent(Event& e) override;
 
       protected:
         virtual void onTouch(void* data = nullptr) = 0;
+        virtual void onBlur(void* data = nullptr) = 0;
         EventDispatcher* getEventDispatcher() const
         {
             return eventDispatcher;

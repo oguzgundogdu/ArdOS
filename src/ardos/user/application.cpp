@@ -21,7 +21,6 @@ Application::Application() : ManagedProcess()
 
 void Application::onMessage(const std::string& topic, const Message& message)
 {
-    kernel::Logger::Log(kernel::LogLevel::Debug, "Application received message: " + topic);
     auto* context = kernel::ProcessManager::getCurrentProcess()->getContext();
     if (context->getPid() != message.getSourcePid())
     {
@@ -33,17 +32,19 @@ void Application::onMessage(const std::string& topic, const Message& message)
         const TouchMessage& inputMessage = static_cast<const TouchMessage&>(message);
 
         Event event;
+
         event.type = EventType::Touch;
         event.x = inputMessage.getX();
         event.y = inputMessage.getY();
         event.id = inputMessage.getSourcePid();
-        event.elementId = inputMessage.getElementId();
+        event.data = (void*)&inputMessage;
+        event.elementIds = inputMessage.getElementIds();
 
         getEventDispatcher()->dispatch(event);
     }
 }
 
-void Application::OnEvent(const Event& e)
+void Application::OnEvent(Event& e)
 {
     auto* context = kernel::ProcessManager::getCurrentProcess()->getContext();
     switch (e.type)
