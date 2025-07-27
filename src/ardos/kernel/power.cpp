@@ -1,6 +1,10 @@
+#include "ardos/drivers/rtc.h"
 #include "ardos/kernel/display.h"
+#include "ardos/kernel/time.h"
 #include <ardos/bus/message_bus.h>
+#include <ardos/drivers/bus/time_tick_message.h>
 #include <ardos/drivers/display.h>
+#include <ardos/drivers/input.h>
 #include <ardos/kernel/power.h>
 
 using namespace ardos::bus;
@@ -8,7 +12,8 @@ using namespace ardos::drivers;
 
 PowerManager::PowerManager()
 {
-    // Initialize power management settings
+    MessageBus::subscribe(DRIVER_TOUCH_START_MESSAGE, this);
+    MessageBus::subscribe(TIME_TICK_MESSAGE, this);
 }
 
 PowerManager::~PowerManager()
@@ -18,6 +23,36 @@ PowerManager::~PowerManager()
 
 void PowerManager::onMessage(const std::string& topic, const Message& msg)
 {
+    if (topic == DRIVER_TOUCH_START_MESSAGE)
+    {
+        mLastTouchTime = TimeManager::getInstance()->getCurrentTime(); // Store the last touch time
+        if (this->isSleepMode())
+        {
+            this->setSleepMode(false); // Wake up from sleep mode
+        }
+        if (this->isPowerSaveMode())
+        {
+            this->setPowerSaveMode(false); // Disable power save mode on touch
+        }
+    }
+    else if (topic == TIME_TICK_MESSAGE)
+    {
+        auto m = static_cast<const ardos::drivers::bus::TimeTickMessage&>(msg);
+
+        struct tm timeInfo = m.getTimeInfo();
+        long ct = static_cast<long>(mktime(&timeInfo));
+        long lastTouchTime = static_cast<long>(mktime(&mLastTouchTime));
+
+        if (ct - lastTouchTime > SLEEP_TIMEOUT && !this->isSleepMode())
+        {
+            this->setSleepMode(true);
+            this->setPowerSaveMode(false); // Ensure we are not in power-saving mode
+        }
+        else if (ct - lastTouchTime > POWER_SAVE_TIMEOUT && !this->isPowerSaveMode() && !this->isSleepMode())
+        {
+            this->setPowerSaveMode(true);
+        }
+    }
 }
 
 void PowerManager::setPowerSaveMode(bool enabled)

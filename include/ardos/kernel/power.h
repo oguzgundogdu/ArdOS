@@ -37,4 +37,5 @@ class PowerManager : ardos::bus::MessageListener
     bool power_save_mode = false;
     bool sleep_mode = false;
     static PowerManager* instance;
+    tm mLastTouchTime = {};
 };

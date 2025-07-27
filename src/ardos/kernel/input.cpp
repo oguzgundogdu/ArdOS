@@ -37,22 +37,6 @@ void InputManager::onMessage(const std::string& topic, const ardos::bus::Message
 void InputManager::handleTouchStart(const ardos::bus::Message& message)
 {
     TouchMessage touchMessage = static_cast<const TouchMessage&>(message);
-    /*TimeManager* timeManager = TimeManager::getInstance();
-    PowerManager* powerManager = PowerManager::getInstance();
-    TouchMessage touchMessage = static_cast<const TouchMessage&>(message);
-    tm currentTime = timeManager->getCurrentTime();
-    long ct = static_cast<long>(mktime(&currentTime));
-
-    if (ct - touchMessage.getLastTouchTime() > SLEEP_TIMEOUT && !powerManager->isSleepMode())
-    {
-        powerManager->setSleepMode(true);
-        powerManager->setPowerSaveMode(false); // Ensure we are not in power-saving mode
-    }
-    else if (ct - touchMessage.getLastTouchTime() > POWER_SAVE_TIMEOUT && !powerManager->isPowerSaveMode() &&
-             !powerManager->isSleepMode())
-    {
-        powerManager->setPowerSaveMode(true);
-    }*/
 
     MessageBus::publish(KERNEL_TOUCH_START_MESSAGE, touchMessage);
 }
@@ -67,4 +51,8 @@ void InputManager::handleTouchEnd(const ardos::bus::Message& message)
 {
     auto touchMessage = static_cast<const TouchMessage&>(message);
     MessageBus::publish(KERNEL_TOUCH_END_MESSAGE, touchMessage);
+}
+
+void InputManager::Run()
+{
 }

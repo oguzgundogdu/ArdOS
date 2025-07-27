@@ -14,6 +14,7 @@ namespace ardos::kernel
       public:
         InputManager();
         void onMessage(const std::string& topic, const ardos::bus::Message& message) override;
+        void Run();
 
         static InputManager* getInstance()
         {
