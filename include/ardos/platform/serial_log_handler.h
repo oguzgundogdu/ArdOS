@@ -16,7 +16,6 @@ namespace ardos::platform
             Logger::SetOutputHandler(
                 [](LogLevel level, const std::string& msg)
                 {
-                    return;
                     std::string fullMessage;
                     switch (level)
                     {

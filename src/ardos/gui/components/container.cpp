@@ -31,7 +31,7 @@ void Container::RemoveChild(Panel* panel)
     }
 }
 
-void Container::onTouch(void* data)
+void Container::onTouch(Event& e)
 {
 }
 

@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "ardos/gui/button.h"
 #include <ardos/gui/contextmenu.h>
 
@@ -21,7 +20,7 @@ void ContextMenu::Init()
 {
     auto* eventDispatcher = getEventDispatcher();
     Event event{
-        EventType::RenderContextMenu, 0, 0, (uintptr_t)this, this,
+        EventType::RenderContextMenu, 0, 0, eventDispatcher->getEventSeq(), this,
     };
     eventDispatcher->dispatch(event);
 
@@ -34,7 +33,7 @@ void ContextMenu::Init()
     }
 }
 
-void ContextMenu::onBlur(void* data)
+void ContextMenu::onBlur(Event& e)
 {
     if (!isVisible())
         return;
@@ -42,7 +41,7 @@ void ContextMenu::onBlur(void* data)
     setVisible(false);
     auto* eventDispatcher = getEventDispatcher();
     Event event{
-        EventType::RenderContextMenu, 0, 0, (uintptr_t)this, this,
+        EventType::RenderContextMenu, 0, 0, eventDispatcher->getEventSeq(), this,
     };
     eventDispatcher->dispatch(event);
 }

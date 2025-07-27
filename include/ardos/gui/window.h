@@ -26,7 +26,7 @@ class Window : public Container
 {
   public:
     Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title);
-    void onTouch(void* data = nullptr) override;
+    void onTouch(Event&) override;
     const char* GetTitle() const
     {
         return mTitle;

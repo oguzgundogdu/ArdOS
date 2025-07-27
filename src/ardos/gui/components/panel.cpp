@@ -16,11 +16,11 @@ bool Panel::contains(int px, int py)
     return (is_visible && px >= x && px < x + width && py >= y && py < y + height);
 }
 
-void Panel::onTouch(void* data)
+void Panel::onTouch(Event& e)
 {
 }
 
-void Panel::onBlur(void* data)
+void Panel::onBlur(Event& e)
 {
     // Handle blur event if needed
 }
@@ -39,8 +39,14 @@ void Panel::Init()
         event.type = EventType::RenderPanel;
         event.x = x;
         event.y = y;
-        event.id = (uintptr_t)this;
+        event.id = this->getEventDispatcher()->getEventSeq();
         event.data = this;
         eventDispatcher->dispatch(event);
     }
+}
+
+void Panel::setVisible(bool visible)
+{
+    is_visible = visible;
+    setListenerId(getEventDispatcher()->getNextEventSeq()); // Update listener ID for visibility changes
 }

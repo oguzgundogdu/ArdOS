@@ -1,3 +1,6 @@
+#include "Arduino.h"
+#include "api/Common.h"
+#include "ardos/gui/panel.h"
 #include "ardos/kernel/process.h"
 #include "ardos/user/application.h"
 #include <ardos/gui/event.h>
@@ -17,6 +20,7 @@ ComponentEventListener::ComponentEventListener() : EventListener()
         auto* eventDispatcher = app->getEventDispatcher();
         if (eventDispatcher != nullptr)
         {
+            this->setListenerId(eventDispatcher->getNextEventSeq()); // Increment the ID for this listener
             eventDispatcher->registerListener(this);
             this->eventDispatcher = eventDispatcher; // Store the dispatcher for later use
         }
@@ -25,18 +29,18 @@ ComponentEventListener::ComponentEventListener() : EventListener()
 
 void ComponentEventListener::OnEvent(Event& e)
 {
-    if (e.cancel)
+    Serial.println("Event id: " + String(e.id) + ", Listener id: " + String(this->getListenerId()));
+    if (e.cancel || e.id < this->getListenerId())
         return;
     if (e.type == EventType::Touch)
     {
         if (std::find(e.elementIds->begin(), e.elementIds->end(), (uintptr_t)this) != e.elementIds->end())
         {
-            onTouch(e.data);
-            e.cancel = true; // Cancel the event to prevent further propagation
+            onTouch(e);
         }
         else
         {
-            onBlur(e.data); // Call onBlur if the event is not for this component
+            onBlur(e); // Call onBlur if the event is not for this component
         }
     }
     else

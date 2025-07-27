@@ -36,8 +36,7 @@ void Application::onMessage(const std::string& topic, const Message& message)
         event.type = EventType::Touch;
         event.x = inputMessage.getX();
         event.y = inputMessage.getY();
-        event.id = inputMessage.getSourcePid();
-        event.data = (void*)&inputMessage;
+        event.id = this->eventDispatcher->getEventSeq();
         event.elementIds = inputMessage.getElementIds();
 
         getEventDispatcher()->dispatch(event);

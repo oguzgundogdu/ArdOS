@@ -10,7 +10,7 @@ using namespace ardos::gui::event;
 class Panel : public ComponentEventListener
 {
   protected:
-    using Callback = std::function<void()>;
+    using Callback = std::function<void(Event& e)>;
     int x, y, width, height, zIndex = 0;
     bool focused = false;
     bool is_visible = true;
@@ -18,8 +18,8 @@ class Panel : public ComponentEventListener
     int color = ILI9341_WHITE;           // Default color
     int backgroundColor = ILI9341_BLACK; // Default background color
     int borderColor = ILI9341_WHITE;     // Default border color
-    void onTouch(void* data = nullptr) override;
-    void onBlur(void* data = nullptr) override;
+    void onTouch(Event&) override;
+    void onBlur(Event&) override;
 
   public:
     Panel(int x, int y, int width, int height);
@@ -79,10 +79,7 @@ class Panel : public ComponentEventListener
         return focused;
     }
 
-    virtual void setVisible(bool visible)
-    {
-        is_visible = visible;
-    }
+    virtual void setVisible(bool visible);
     bool isVisible() const
     {
         return is_visible;

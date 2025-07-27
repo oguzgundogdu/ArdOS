@@ -12,6 +12,17 @@ namespace ardos::drivers
         void start() override;
         void stop() override;
         void run() override;
+        static RTC* getInstance()
+        {
+            if (!instance)
+            {
+                instance = new RTC();
+            }
+            return instance;
+        }
+
+      private:
+        static RTC* instance; // Pointer to the RTC instance
     };
 
 } // namespace ardos::drivers

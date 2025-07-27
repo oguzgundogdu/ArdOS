@@ -133,17 +133,17 @@ void Compositor::onTouchStart(const TouchMessage& message)
         msgNew.setSourcePid(pid);
         for (Panel* p : panels)
         {
-            if (p && p->contains(message.getX(), message.getY()) && p->getZIndex() > 0)
+            if (p && p->contains(message.getX(), message.getY()))
             {
                 found = true;
                 Logger::Log(LogLevel::Debug, "Touch start on panel: " + std::to_string((uintptr_t)p));
                 mFocused = p;
 
                 msgNew.addElementId((uintptr_t)p);
-                MessageBus::publish(TOUCH_START_MESSAGE, msgNew);
-                return;
             }
         }
+
+        MessageBus::publish(TOUCH_START_MESSAGE, msgNew);
     }
 }
 

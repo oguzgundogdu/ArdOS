@@ -7,13 +7,13 @@ class Container : public Panel
     Container(int x, int y, int width, int height);
     ~Container() override;
 
-    void onTouch(void* data = nullptr) override;
+    void onTouch(Event&) override;
     void Init() override;
     void AddChild(Panel* panel);
     void RemoveChild(Panel* panel);
     void setVisible(bool visible) override
     {
-        is_visible = visible;
+        Panel::setVisible(visible);
         for (auto* child : *mChildren)
         {
             if (child)

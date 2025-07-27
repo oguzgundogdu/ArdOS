@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "api/Common.h"
 #include <RTClib.h>
 #include <Wire.h>
 #include <ardos/bus/message_bus.h>
@@ -12,7 +13,7 @@ namespace
 
 namespace ardos::drivers
 {
-
+    RTC* RTC::instance = nullptr;
     void RTC::start()
     {
         Wire.begin();

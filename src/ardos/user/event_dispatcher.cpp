@@ -1,5 +1,7 @@
+
 #include "ardos/user/event.h"
 #include <algorithm>
+#include <cstdint>
 
 using namespace ardos::user::event;
 
@@ -33,4 +35,14 @@ void EventDispatcher::unregisterListener(EventListener* listener)
     {
         listeners->erase(it, listeners->end());
     }
+}
+
+uint32_t EventDispatcher::getEventSeq() const
+{
+    return mEventSeq;
+}
+
+uint32_t EventDispatcher::getNextEventSeq()
+{
+    return ++mEventSeq;
 }

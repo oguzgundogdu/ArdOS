@@ -11,20 +11,20 @@ void Button::Init()
 {
     auto* eventDispatcher = getEventDispatcher();
     Event event{
-        EventType::RenderButton, 0, 0, (uintptr_t)this, this,
+        EventType::RenderButton, 0, 0, eventDispatcher->getEventSeq(), this,
     };
     eventDispatcher->dispatch(event);
 }
 
-void Button::onBlur(void* data)
+void Button::onBlur(Event& e)
 {
 }
 
-void Button::onTouch(void* data)
+void Button::onTouch(Event& e)
 {
     Serial.println("Button onTouch called");
     if (mCallback)
     {
-        mCallback();
+        mCallback(e);
     }
 }

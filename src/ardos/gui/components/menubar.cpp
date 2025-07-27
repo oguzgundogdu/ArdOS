@@ -11,7 +11,7 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
     mButton->setBorderColor(MENU_BG_COLOR);
     mButton->setColor(MENU_TEXT_COLOR);
     mButton->setCallback(
-        [this]()
+        [this](Event& e)
         {
             Serial.println("Menu button clicked");
             if (mMenu)
@@ -21,13 +21,9 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
             else
             {
                 mMenu = new ContextMenu(0, MENU_HEIGHT);
-                mMenu->AddItem("File Explorer",
-                               [&]()
-                               {
-                                   
-                               });
-                mMenu->AddItem("Settings", []() {});
-                mMenu->AddItem("About", []() {});
+                mMenu->AddItem("File Explorer", [&](Event& e) { Serial.println("File Explorer clicked"); });
+                mMenu->AddItem("Settings", [](Event& e) {});
+                mMenu->AddItem("About", [](Event& e) {});
                 AddChild(mMenu);
                 mMenu->Init();
             }
@@ -39,7 +35,7 @@ void MenuBar::Init()
 {
     auto* eventDispatcher = getEventDispatcher();
     Event event{
-        EventType::RenderMenuBar, 0, 0, (uintptr_t)this, this,
+        EventType::RenderMenuBar, 0, 0, eventDispatcher->getEventSeq(), this,
     };
     eventDispatcher->dispatch(event);
 

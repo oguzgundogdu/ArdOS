@@ -13,8 +13,8 @@ namespace ardos::gui::event
         void OnEvent(Event& e) override;
 
       protected:
-        virtual void onTouch(void* data = nullptr) = 0;
-        virtual void onBlur(void* data = nullptr) = 0;
+        virtual void onTouch(Event& e) = 0;
+        virtual void onBlur(Event& e) = 0;
         EventDispatcher* getEventDispatcher() const
         {
             return eventDispatcher;

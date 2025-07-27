@@ -34,9 +34,8 @@ void Kernel::stop()
 
 void Kernel::run()
 {
-    yield();
-    /*drivers::RTC* rtcDriver = new drivers::RTC();
-    rtcDriver->run();*/
+    // drivers::RTC* rtcDriver = RTC::getInstance();
+    // rtcDriver->run();
 
     drivers::DisplayDriver* displayDriver = drivers::DisplayDriver::getInstance();
     displayDriver->run();
@@ -45,6 +44,7 @@ void Kernel::run()
     inputDriver->run();
 
     ProcessManager::tick();
+    yield();
 }
 
 Kernel* Kernel::getInstance()
@@ -58,7 +58,7 @@ Kernel* Kernel::getInstance()
 
 void Kernel::initializeDrivers()
 {
-    drivers::RTC* rtcDriver = new drivers::RTC();
+    drivers::RTC* rtcDriver = drivers::RTC::getInstance();
     rtcDriver->start();
 
     drivers::SerialDriver* serialDriver = new drivers::SerialDriver();
