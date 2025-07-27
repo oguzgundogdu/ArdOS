@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ardos/gui/label.h"
 #include <ardos/bus/message_bus.h>
 #include <ardos/bus/touch_message.h>
 
@@ -54,6 +55,9 @@ class Compositor : public Application
 
     // Button
     void renderButton(Button* button, uint32_t pid);
+
+    // Label
+    void renderLabel(Label* label, uint32_t pid);
 
     // Event
     void onTouchStart(const TouchMessage& message);

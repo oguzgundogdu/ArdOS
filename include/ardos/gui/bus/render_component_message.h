@@ -8,6 +8,7 @@
 #define RENDER_CONTEXTMENU_MESSAGE "render/ContextMenu"
 #define RENDER_WINDOW_MESSAGE "render/Window"
 #define RENDER_BUTTON_MESSAGE "render/Button"
+#define RENDER_LABEL_MESSAGE "render/Label"
 
 using namespace ardos::bus;
 

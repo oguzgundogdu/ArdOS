@@ -1,9 +1,12 @@
 #include "Arduino.h"
+#include "ardos/user/event.h"
+#include <ardos/gui/label.h>
 #include <ardos/gui/menubar.h>
 #include <ardos/gui/window.h>
 
 MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
 {
+    this->getEventDispatcher()->registerListener(EventType::TimeChange, this);
     setBackgroundColor(MENU_BG_COLOR);
     setBorderColor(MENU_BG_COLOR);
     setColor(MENU_TEXT_COLOR);
@@ -37,6 +40,11 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
             }
         });
     AddChild(mButton);
+    lblTime = new Label("--:--", MENU_WIDTH - 40, 0, 40, MENU_HEIGHT);
+    lblTime->setBackgroundColor(MENU_BG_COLOR);
+    lblTime->setBorderColor(MENU_BG_COLOR);
+    lblTime->setColor(MENU_TEXT_COLOR);
+    AddChild(lblTime);
 }
 
 void MenuBar::Init()
@@ -56,25 +64,9 @@ void MenuBar::Init()
     }
 }
 
-/*void MenuBar::render()
+void MenuBar::onTimeTick(Event& e)
 {
-    Screen* screen = Screen::getInstance();
-
-
-
-    screen->setCursor(MENU_WIDTH - 40, y + 4);
-    auto timeStr = getFormattedTime();
-    Serial.print("Current time: ");
-    Serial.println(timeStr.c_str());
-    screen->print(timeStr.c_str());
-    Serial.println("MenuBar rendered");
-}*/
-
-/*std::string MenuBar::getFormattedTime()
-{
-    DateTime now = ardos::kernel::RTC::Now();
-
-    char buf[6];
-    snprintf(buf, sizeof(buf), "%02d:%02d", now.hour(), now.minute());
-    return std::string(buf);
-}*/
+    std::string timeStr = e.data ? *static_cast<std::string*>(e.data) : "--:--";
+    lblTime->SetText(timeStr);
+    lblTime->Init();
+}

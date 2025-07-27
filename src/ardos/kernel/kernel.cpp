@@ -1,4 +1,3 @@
-#include "api/Common.h"
 #include "ardos/drivers/display.h"
 #include "ardos/drivers/input.h"
 #include "ardos/drivers/rtc.h"
@@ -6,7 +5,6 @@
 #include "ardos/kernel/display.h"
 #include "ardos/kernel/input.h"
 #include "ardos/kernel/process.h"
-
 #include <ardos/kernel/kernel.h>
 
 using namespace ardos::kernel;
@@ -34,8 +32,8 @@ void Kernel::stop()
 
 void Kernel::run()
 {
-    // drivers::RTC* rtcDriver = RTC::getInstance();
-    // rtcDriver->run();
+    drivers::RTC* rtcDriver = RTC::getInstance();
+    rtcDriver->run();
 
     drivers::DisplayDriver* displayDriver = drivers::DisplayDriver::getInstance();
     displayDriver->run();

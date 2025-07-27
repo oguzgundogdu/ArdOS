@@ -1,8 +1,6 @@
-#include "Arduino.h"
-#include "api/Common.h"
-#include "ardos/gui/panel.h"
 #include "ardos/kernel/process.h"
 #include "ardos/user/application.h"
+#include "ardos/user/event.h"
 #include <ardos/gui/event.h>
 #include <cstdint>
 
@@ -21,7 +19,7 @@ ComponentEventListener::ComponentEventListener() : EventListener()
         if (eventDispatcher != nullptr)
         {
             this->setListenerId(eventDispatcher->getNextEventSeq()); // Increment the ID for this listener
-            eventDispatcher->registerListener(this);
+            eventDispatcher->registerListener(EventType::Touch, this);
             this->eventDispatcher = eventDispatcher; // Store the dispatcher for later use
         }
     }
@@ -29,7 +27,6 @@ ComponentEventListener::ComponentEventListener() : EventListener()
 
 void ComponentEventListener::OnEvent(Event& e)
 {
-    Serial.println("Event id: " + String(e.id) + ", Listener id: " + String(this->getListenerId()));
     if (e.cancel || e.id < this->getListenerId())
         return;
     if (e.type == EventType::Touch)
@@ -43,8 +40,13 @@ void ComponentEventListener::OnEvent(Event& e)
             onBlur(e); // Call onBlur if the event is not for this component
         }
     }
-    else
+    else if (e.type == EventType::TimeChange)
     {
-        // Handle other event types if necessary
+        onTimeTick(e);
     }
+}
+
+void ComponentEventListener::onTimeTick(Event& e)
+{
+    // Default implementation does nothing, can be overridden by derived classes
 }

@@ -6,6 +6,7 @@
 class TimeManager : public ardos::bus::MessageListener
 {
   public:
+    TimeManager();
     tm getCurrentTime() const;
     void onMessage(const std::string& topic, const ardos::bus::Message& message) override;
 
@@ -17,5 +18,4 @@ class TimeManager : public ardos::bus::MessageListener
 
   private:
     tm current_time;
-    TimeManager() = default;
 };

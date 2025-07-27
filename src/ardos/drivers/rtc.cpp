@@ -1,5 +1,4 @@
 #include "Arduino.h"
-#include "api/Common.h"
 #include <RTClib.h>
 #include <Wire.h>
 #include <ardos/bus/message_bus.h>
@@ -9,7 +8,8 @@
 namespace
 {
     RTC_DS3231* rtc = nullptr;
-}
+    tm current_time = {0}; // Initialize to zeroed tm structure
+} // namespace
 
 namespace ardos::drivers
 {
@@ -24,6 +24,7 @@ namespace ardos::drivers
         {
             rtc->adjust(DateTime(F(__DATE__), F(__TIME__)));
         }
+
         Serial.println("RTC driver initialized successfully");
     }
 
@@ -42,7 +43,16 @@ namespace ardos::drivers
     void RTC::run()
     {
         DateTime now = rtc->now();
-        tm current_time;
+
+        // check if seconds have changed
+        int secDiff = now.second() - current_time.tm_sec;
+
+        if (secDiff == 0)
+        {
+            // If the difference is less than 61 seconds, we assume the time hasn't changed significantly
+            return;
+        }
+
         current_time.tm_year = now.year() - 1900; // tm_year is years since 1900
         current_time.tm_mon = now.month() - 1;    // tm_mon is 0-11
         current_time.tm_mday = now.day();

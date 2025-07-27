@@ -7,7 +7,7 @@ using namespace ardos::user::event;
 
 EventDispatcher::EventDispatcher()
 {
-    listeners = new std::vector<EventListener*>();
+    listeners = new std::map<EventType, std::vector<EventListener*>>();
 }
 
 void EventDispatcher::dispatch(Event& event)
@@ -17,23 +17,44 @@ void EventDispatcher::dispatch(Event& event)
         return;
     }
 
-    for (auto* listener : *listeners)
+    for (const auto& [eventType, listenerList] : *listeners)
     {
-        listener->OnEvent(event);
+        if (event.type != eventType)
+        {
+            continue;
+        }
+
+        if (listenerList.empty())
+        {
+            continue;
+        }
+
+        for (auto* listener : listenerList)
+        {
+            listener->OnEvent(event);
+        }
     }
 }
 
-void EventDispatcher::registerListener(EventListener* listener)
+void EventDispatcher::registerListener(EventType eventType, EventListener* listener)
 {
-    listeners->push_back(listener);
+    if (listeners->find(eventType) == listeners->end())
+    {
+        (*listeners)[eventType] = std::vector<EventListener*>();
+    }
+    (*listeners)[eventType].push_back(listener);
 }
 
 void EventDispatcher::unregisterListener(EventListener* listener)
 {
-    auto it = std::remove(listeners->begin(), listeners->end(), listener);
-    if (it != listeners->end())
+    for (auto& [eventType, listenerList] : *listeners)
     {
-        listeners->erase(it, listeners->end());
+        auto it = std::remove(listenerList.begin(), listenerList.end(), listener);
+        if (it != listenerList.end())
+        {
+            listenerList.erase(it, listenerList.end());
+            break; // Listener found and removed, exit loop
+        }
     }
 }
 

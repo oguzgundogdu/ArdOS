@@ -15,6 +15,7 @@ namespace ardos::gui::event
       protected:
         virtual void onTouch(Event& e) = 0;
         virtual void onBlur(Event& e) = 0;
+        virtual void onTimeTick(Event& e);
         EventDispatcher* getEventDispatcher() const
         {
             return eventDispatcher;

@@ -1,6 +1,7 @@
 #include "ardos/bus/message_bus.h"
 #include "ardos/kernel/logger.h"
 #include "ardos/kernel/process.h"
+#include "ardos/user/event.h"
 #include <ardos/bus/touch_message.h>
 #include <ardos/gui/bus/render_component_message.h>
 #include <ardos/user/application.h>
@@ -12,7 +13,13 @@ Application::Application() : ManagedProcess()
     // Initialize the event dispatcher
     eventDispatcher = new event::EventDispatcher();
     // Register this application as an event listener
-    eventDispatcher->registerListener(this);
+    eventDispatcher->registerListener(EventType::RenderButton, this);
+    eventDispatcher->registerListener(EventType::RenderContainer, this);
+    eventDispatcher->registerListener(EventType::RenderLabel, this);
+    eventDispatcher->registerListener(EventType::RenderMenuBar, this);
+    eventDispatcher->registerListener(EventType::RenderContextMenu, this);
+    eventDispatcher->registerListener(EventType::RenderPanel, this);
+    eventDispatcher->registerListener(EventType::RenderWindow, this);
 
     MessageBus::subscribe(TOUCH_START_MESSAGE, this);
     MessageBus::subscribe(TOUCH_MOVE_MESSAGE, this);
@@ -65,6 +72,9 @@ void Application::OnEvent(Event& e)
         break;
     case EventType::RenderContextMenu:
         MessageBus::publish(RENDER_CONTEXTMENU_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
+        break;
+    case EventType::RenderLabel:
+        MessageBus::publish(RENDER_LABEL_MESSAGE, gui::bus::RenderComponentMessage(e.data, context->getPid()));
         break;
     default:
         break;

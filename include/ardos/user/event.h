@@ -2,6 +2,7 @@
 
 #include "api/Common.h"
 #include <cstdint>
+#include <map>
 #include <vector>
 
 namespace ardos::user::event
@@ -11,12 +12,14 @@ namespace ardos::user::event
     {
         Touch,
         Blur,
+        TimeChange,
         RenderPanel,
         RenderContainer,
         RenderWindow,
         RenderButton,
         RenderMenuBar,
         RenderContextMenu,
+        RenderLabel,
     };
 
     struct Event
@@ -49,14 +52,14 @@ namespace ardos::user::event
     class EventDispatcher
     {
       private:
-        std::vector<EventListener*>* listeners = nullptr;
+        std::map<EventType, std::vector<EventListener*>>* listeners = nullptr;
         uint32_t mEventSeq = 0;
 
       public:
         EventDispatcher();
         ~EventDispatcher();
         void dispatch(Event& event);
-        void registerListener(EventListener* listener);
+        void registerListener(EventType, EventListener* listener);
         void unregisterListener(EventListener* listener);
         uint32_t getEventSeq() const;
         uint32_t getNextEventSeq();

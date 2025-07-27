@@ -2,6 +2,7 @@
 
 #include "ardos/gui/button.h"
 #include "ardos/gui/contextmenu.h"
+#include "ardos/gui/label.h"
 #include "ardos/gui/panel.h"
 #include <functional>
 
@@ -15,10 +16,12 @@ class MenuBar : public Container
   public:
     MenuBar();
     void Init() override;
+    void onTimeTick(Event& e) override;
 
   private:
     ContextMenu* mMenu = nullptr;
     Button* mButton = nullptr;
+    Label* lblTime = nullptr;
     std::function<void()> mCallback;
     std::string getFormattedTime();
     void toggleContextMenu()

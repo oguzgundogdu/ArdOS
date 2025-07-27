@@ -2,6 +2,7 @@
 #include "ardos/drivers/display.h"
 #include "ardos/gui/container.h"
 #include "ardos/gui/contextmenu.h"
+#include "ardos/gui/label.h"
 #include "ardos/gui/menubar.h"
 #include "ardos/gui/panel.h"
 #include "ardos/kernel/config.h"
@@ -42,6 +43,7 @@ void Compositor::start()
     MessageBus::subscribe(RENDER_MENUBAR_MESSAGE, this);
     MessageBus::subscribe(RENDER_CONTEXTMENU_MESSAGE, this);
     MessageBus::subscribe(RENDER_BUTTON_MESSAGE, this);
+    MessageBus::subscribe(RENDER_LABEL_MESSAGE, this);
     Logger::Log(LogLevel::Info, "Compositor started");
 
     ardos::drivers::DisplayDriver* displayDriver = ardos::drivers::DisplayDriver::getInstance();
@@ -104,6 +106,11 @@ void Compositor::onMessage(const std::string& topic, const Message& message)
         {
             Button* obj = static_cast<Button*>(renderMessage.getComponent());
             renderButton(obj, message.getSourcePid());
+        }
+        else if (topic == RENDER_LABEL_MESSAGE)
+        {
+            Label* obj = static_cast<Label*>(renderMessage.getComponent());
+            renderLabel(obj, message.getSourcePid());
         }
 
         Panel* component = static_cast<Panel*>(renderMessage.getComponent());

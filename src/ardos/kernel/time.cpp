@@ -9,6 +9,11 @@
 using namespace ardos::bus;
 using namespace ardos::drivers::bus;
 
+TimeManager::TimeManager() : ardos::bus::MessageListener()
+{
+    MessageBus::subscribe(TIME_TICK_MESSAGE, this);
+}
+
 void TimeManager::onMessage(const std::string& topic, const Message& msg)
 {
     if (topic == TIME_TICK_MESSAGE)
