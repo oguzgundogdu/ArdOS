@@ -2,6 +2,7 @@
 
 #include "ardos/gui/button.h"
 #include "ardos/gui/contextmenu.h"
+#include "ardos/gui/panel.h"
 #include <functional>
 
 #define MENU_HEIGHT 20
@@ -27,5 +28,10 @@ class MenuBar : public Container
             mMenu->setVisible(!mMenu->isVisible());
             mMenu->Init();
         }
+    }
+
+    ObjectType getType() const override
+    {
+        return ObjectType::MenuBar;
     }
 };

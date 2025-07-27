@@ -27,6 +27,11 @@ class Container : public Panel
         return *mChildren;
     }
 
+    ObjectType getType() const override
+    {
+        return ObjectType::Container;
+    }
+
   private:
     std::vector<Panel*>* mChildren = new std::vector<Panel*>();
 };

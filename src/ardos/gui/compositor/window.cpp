@@ -1,4 +1,5 @@
 #include "ardos/gui/window.h"
+#include "Arduino.h"
 #include "ardos/bus/message_bus.h"
 #include "ardos/gui/compositor.h"
 #include "ardos/kernel/bus/draw_line_message.h"
@@ -153,15 +154,9 @@ void Compositor::dragWindow(Window* window, int16_t tx, int16_t ty, uint32_t pid
         new_y = MENU_HEIGHT + 1; // Prevent dragging above the menu bar
     }
 
-    Serial.print("Dragging window to: ");
-    Serial.print(new_x);
-    Serial.print(", ");
-    Serial.println(new_y);
-
     // Check bounds
     if (new_x != window->getX() || new_y != window->getY())
     {
-        Serial.println("Updating window position");
         // Ensure the new position is within the screen bounds
         if (new_x < 0)
             new_x = 0;
@@ -171,19 +166,15 @@ void Compositor::dragWindow(Window* window, int16_t tx, int16_t ty, uint32_t pid
             new_x = SCREEN_WIDTH - window->getWidth();
         if (new_y + window->getHeight() > SCREEN_HEIGHT - MENU_HEIGHT)
             new_y = SCREEN_HEIGHT - MENU_HEIGHT - window->getHeight();
-        // Clear previous position
-        MessageBus::publish(FILL_RECT_MESSAGE,
-                            FillRectMessage(window->getX(), window->getY(), window->getWidth(), window->getHeight(),
-                                            ILI9341_BLACK, pid, MessageType::Display));
 
-        // Set new position
-        // prev_x = window->getX();
-        // prev_y = window->getY();
-
+        if (!window->isDraging)
+        {
+            window->isDraging = true;
+            MessageBus::publish(FILL_RECT_MESSAGE, ardos::kernel::bus::FillRectMessage(
+                                                       window->getX(), window->getY(), window->getWidth(),
+                                                       window->getHeight(), ILI9341_BLACK, pid, MessageType::Display));
+        }
         window->setPosition(new_x, new_y);
-
-        // Redraw
-        renderWindow(window, pid);
     }
 }
 
@@ -199,15 +190,6 @@ void Compositor::touchWindow(Window* window, int16_t tx, int16_t ty, uint32_t pi
         {
             // is_dragging = false;
             // ardos::kernel::EventManager::dispatch(Event{EventType::Kill, 0, 0, (uintptr_t)this});
-            return;
-        }
-
-        if (ty >= window->getY() && ty <= window->getY() + WINDOW_TITLEBAR_HEIGHT)
-        {
-            /*drag_offset_x = tx - window->getX();
-            drag_offset_y = ty - window->getY();
-            is_dragging = true;*/
-            dragWindow(window, tx, ty, pid);
         }
     }
 }

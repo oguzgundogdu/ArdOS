@@ -27,7 +27,7 @@ void Panel::onBlur(Event& e)
 
 bool Panel::intersects(int16_t rx, int16_t ry, int16_t rw, int16_t rh)
 {
-    return !(x + width < rx || x > rx + rw || y + height < ry || y > ry + rh);
+    return (is_visible && x < rx + rw && x + width > rx && y < ry + rh && y + height > ry);
 }
 
 void Panel::Init()

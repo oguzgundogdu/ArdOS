@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Adafruit_ILI9341.h"
+#include "ardos/gui/panel.h"
 #include <Arduino.h>
 #include <ardos/gui/container.h>
 
@@ -27,6 +28,8 @@ class Window : public Container
   public:
     Window(int16_t x, int16_t y, int16_t w, int16_t h, const char* title);
     void onTouch(Event&) override;
+    void Init() override;
+    bool isDraging = false;
     const char* GetTitle() const
     {
         return mTitle;
@@ -34,6 +37,10 @@ class Window : public Container
     void SetTitle(const char* newTitle)
     {
         mTitle = newTitle;
+    }
+    ObjectType getType() const override
+    {
+        return ObjectType::Window;
     }
 
   private:

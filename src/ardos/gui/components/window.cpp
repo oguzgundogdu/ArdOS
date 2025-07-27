@@ -12,3 +12,15 @@ void Window::onTouch(Event& e)
     if (mCallback)
         mCallback(e);
 }
+
+void Window::Init()
+{
+    auto* eventDispatcher = getEventDispatcher();
+    Event event{
+        EventType::RenderWindow, 0, 0, eventDispatcher->getEventSeq(), this,
+    };
+    eventDispatcher->dispatch(event);
+
+    // Initialize the title bar and close button
+    // This can be implemented as needed for rendering the window's title and close button
+}

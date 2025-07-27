@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include <ardos/gui/menubar.h>
+#include <ardos/gui/window.h>
 
 MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
 {
@@ -21,7 +22,14 @@ MenuBar::MenuBar() : Container(0, 0, MENU_WIDTH, MENU_HEIGHT)
             else
             {
                 mMenu = new ContextMenu(0, MENU_HEIGHT);
-                mMenu->AddItem("File Explorer", [&](Event& e) { Serial.println("File Explorer clicked"); });
+                mMenu->AddItem("File Explorer",
+                               [&](Event& e)
+                               {
+                                   mMenu->setVisible(false);
+                                   mMenu->Init();
+                                   Window* fileExplorer = new Window(0, MENU_HEIGHT + 20, 200, 150, "File Explorer");
+                                   fileExplorer->Init();
+                               });
                 mMenu->AddItem("Settings", [](Event& e) {});
                 mMenu->AddItem("About", [](Event& e) {});
                 AddChild(mMenu);

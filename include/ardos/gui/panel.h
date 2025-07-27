@@ -7,6 +7,17 @@
 
 using namespace ardos::gui::event;
 
+enum class ObjectType
+{
+    Panel,
+    Container,
+    Window,
+    Button,
+    MenuBar,
+    ContextMenu,
+    Unknown
+};
+
 class Panel : public ComponentEventListener
 {
   protected:
@@ -128,5 +139,10 @@ class Panel : public ComponentEventListener
     void setZIndex(int newZIndex)
     {
         zIndex = newZIndex;
+    }
+
+    virtual ObjectType getType() const
+    {
+        return ObjectType::Panel;
     }
 };

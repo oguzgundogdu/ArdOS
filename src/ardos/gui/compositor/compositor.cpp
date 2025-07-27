@@ -3,6 +3,7 @@
 #include "ardos/gui/container.h"
 #include "ardos/gui/contextmenu.h"
 #include "ardos/gui/menubar.h"
+#include "ardos/gui/panel.h"
 #include "ardos/kernel/config.h"
 #include "ardos/kernel/input.h"
 #include "ardos/kernel/logger.h"
@@ -13,6 +14,7 @@
 #include <ardos/gui/bus/render_component_message.h>
 #include <ardos/gui/compositor.h>
 #include <ardos/gui/window.h>
+#include <ardos/kernel/bus/fill_rect_message.h>
 #include <ardos/kernel/state.h>
 #include <ardos/process/app_registry.h>
 #include <cstdint>
@@ -103,6 +105,26 @@ void Compositor::onMessage(const std::string& topic, const Message& message)
             Button* obj = static_cast<Button*>(renderMessage.getComponent());
             renderButton(obj, message.getSourcePid());
         }
+
+        Panel* component = static_cast<Panel*>(renderMessage.getComponent());
+
+        // check for intersected panels and render them
+        if (!component->isVisible() &&
+            (component->getType() == ObjectType::Container || component->getType() == ObjectType::Window))
+        {
+            for (auto& [pid, panels] : mPanels)
+            {
+                for (Panel* p : panels)
+                {
+                    if ((uintptr_t)p != (uintptr_t)component && p->isVisible() &&
+                        p->intersects(component->getX(), component->getY(), component->getWidth(),
+                                      component->getHeight()))
+                    {
+                        p->Init();
+                    }
+                }
+            }
+        }
     }
     else if (message.getType() == MessageType::Input)
     {
@@ -140,6 +162,13 @@ void Compositor::onTouchStart(const TouchMessage& message)
                 mFocused = p;
 
                 msgNew.addElementId((uintptr_t)p);
+
+                if (p->getType() == ObjectType::Window)
+                {
+                    Window* window = static_cast<Window*>(p);
+
+                    touchWindow(window, message.getX(), message.getY(), pid);
+                }
             }
         }
 
@@ -149,10 +178,43 @@ void Compositor::onTouchStart(const TouchMessage& message)
 
 void Compositor::onTouchMove(const TouchMessage& message)
 {
+    for (auto& [pid, panels] : mPanels)
+    {
+        for (Panel* p : panels)
+        {
+            if (p && p->contains(message.getX(), message.getY()))
+            {
+                if (p->getType() == ObjectType::Window)
+                {
+                    Window* window = static_cast<Window*>(p);
+
+                    dragWindow(window, message.getX(), message.getY(), pid);
+                }
+            }
+        }
+    }
 }
 
 void Compositor::onTouchEnd(const TouchMessage& message)
 {
+    for (auto& [pid, panels] : mPanels)
+    {
+        for (Panel* p : panels)
+        {
+            if (p && p->contains(message.getX(), message.getY()))
+            {
+                if (p->getType() == ObjectType::Window)
+                {
+                    Window* window = static_cast<Window*>(p);
+                    if (window->isDraging)
+                    {
+                        window->isDraging = false;
+                        window->Init();
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Compositor::onKill(const Event& e)
@@ -228,6 +290,7 @@ void Compositor::addPanel(void* panel, uint32_t pid)
     }
 
     mPanels[pid].push_back(p);
+    mFocused = p;
 }
 
 Compositor* Compositor::GetInstance()
